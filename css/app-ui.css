@@ -1,0 +1,1449 @@
+/* =========================================================
+   APP UI — PATCH FILE
+   ---------------------------------------------------------
+   MASALAH YANG DIPERBAIKI FILE INI:
+
+   1. components.css mendefinisikan tombol/tab/badge dengan
+      konvensi BEM dua-strip (.btn--primary, .tab--active,
+      .badge--danger), TAPI seluruh template HTML/JS aplikasi
+      (login.html, dashboard.html, dashboard.js, utils.js)
+      memakai satu-strip (.btn-primary, .tab-btn.active,
+      .badge-danger). Karena nama class tidak pernah cocok,
+      browser tidak menerapkan style apa pun ke elemen-elemen
+      itu -> tombol jadi teks polos, tab jadi list polos, dst.
+
+   2. Banyak class yang dipakai template TIDAK PERNAH
+      didefinisikan sama sekali di file CSS manapun:
+      .header-card, .tab-nav, .students-section, .rekap-card,
+      .notification, .hidden, dll.
+
+   File ini TIDAK mengubah file CSS lain — cukup ditambahkan
+   sebagai import baru di css/main.css (paling akhir, supaya
+   bisa melengkapi tanpa merusak yang sudah ada).
+   ========================================================= */
+
+/* ==================== Utility: .hidden ====================
+   Dipakai di HAMPIR SEMUA template untuk show/hide (tab panel,
+   loading state, section wali, dll) tapi tidak pernah
+   didefinisikan sebelumnya (utilities.css cuma punya .d-none). */
+.hidden {
+  display: none !important;
+}
+
+/* ==================== Buttons (single-dash) ====================
+   Alias lengkap dari .btn--primary dkk di components.css, memakai
+   nama class yang benar-benar dipakai di template. */
+.btn-primary,
+.btn-secondary,
+.btn-success,
+.btn-danger,
+.btn-outline,
+.btn-quick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-6);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: 2px solid transparent;
+  /* PATCH MOBILE: white-space:nowrap DIHAPUS dari sini. Sebelumnya semua
+     tombol (termasuk tombol lebar-penuh berteks panjang seperti "📥 Unduh
+     Rekap Mata Pelajaran (.xlsx)") dipaksa 1 baris -- di layar sempit
+     (HP), teks itu MELEBER KELUAR tombolnya sendiri bahkan sampai keluar
+     lebar viewport, membuat SELURUH HALAMAN bisa di-scroll horizontal.
+     Sekarang teks tombol boleh wrap ke baris ke-2 kalau memang tidak
+     cukup ruang -- .btn-quick (chip pendek) di bawah tetap nowrap karena
+     labelnya memang selalu pendek & pasti muat 1 baris. */
+  text-align: center;
+  line-height: 1.3;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--white);
+}
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background: var(--secondary-color);
+  color: var(--white);
+}
+.btn-secondary:hover {
+  background: var(--secondary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-success {
+  background: var(--success-color);
+  color: var(--white);
+}
+.btn-success:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-danger {
+  background: var(--danger-color);
+  color: var(--white);
+}
+.btn-danger:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-outline {
+  background: transparent;
+  border-color: var(--gray-300);
+  color: var(--gray-700);
+}
+.btn-outline:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-400);
+}
+
+.btn-quick {
+  background: var(--gray-100);
+  color: var(--gray-700);
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--gray-200);
+  white-space: nowrap;
+}
+.btn-quick:hover {
+  background: var(--gray-200);
+}
+
+.btn-sm {
+  padding: var(--spacing-2) var(--spacing-4) !important;
+  font-size: var(--font-size-sm) !important;
+  white-space: nowrap;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-success:disabled,
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Tombol submit form (login & absensi) dengan area progress bar */
+.btn-submit {
+  position: relative;
+  margin-top: var(--spacing-4);
+  overflow: hidden;
+}
+
+.btn-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+}
+.btn-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--white);
+  transition: width var(--transition-normal);
+}
+
+/* ==================== Badges (single-dash) ====================
+   Dipakai oleh js/utils.js getStatusBadge() dan js/dashboard.js */
+.badge-success,
+.badge-warning,
+.badge-danger,
+.badge-info,
+.badge-secondary {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.badge-success { background: rgba(6, 214, 160, 0.1); color: var(--success-color); }
+.badge-warning { background: rgba(255, 209, 102, 0.1); color: #d4a017; }
+.badge-danger  { background: rgba(239, 71, 111, 0.1); color: var(--danger-color); }
+.badge-info    { background: rgba(17, 138, 178, 0.1); color: var(--info-color); }
+.badge-secondary { background: var(--gray-100); color: var(--gray-600); }
+
+/* ==================== Header Card (dashboard) ==================== */
+.header-card {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-5) var(--spacing-6);
+  margin-bottom: var(--spacing-5);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  /* PATCH: sebelumnya tidak ada width, jadi kontainer ini cuma selebar
+     kontennya sendiri (avatar+teks+ikon) -- ikon menu (⋮) yang didorong
+     pakai margin-left:auto jadi cuma mentok di ujung TEKS, bukan di
+     tepi kartu sungguhan, terlihat aneh menggantung di tengah. Dengan
+     width penuh, dorongannya sekarang benar-benar sampai tepi kartu, di
+     lebar layar berapa pun. */
+  width: 100%;
+}
+
+.header-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: rgba(var(--primary-color-rgb), 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* PATCH PANEL PROFIL: dipakai saat foto profil sudah diunggah -- lihat
+   js/profil.js (tampilkanFoto()). Menggantikan emoji default di
+   .header-avatar dengan foto asli, tetap pas di lingkaran yang sama. */
+.header-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.header-info-text h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--gray-800);
+  margin-bottom: 2px;
+}
+
+.header-date {
+  font-size: var(--font-size-sm);
+  color: var(--gray-500);
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+/* ==================== Tabs (dashboard nav) ====================
+   Template pakai class="active" polos (bukan "tab--active" BEM). */
+/* PATCH UX: menu utama (Dashboard/Input/Riwayat/Rekap) dipindah dari
+   posisi inline di ATAS halaman menjadi bar navigasi TETAP (fixed) di
+   BAWAH layar -- supaya pengguna tidak perlu scroll ke atas lagi untuk
+   pindah menu ketika sedang berada di bagian bawah halaman (mis. sudah
+   mengisi tabel siswa yang panjang lalu ingin pindah ke tab lain).
+   env(safe-area-inset-bottom) menambah jarak aman di HP dengan gesture
+   bar/notch di bawah (mis. iPhone tanpa tombol Home). */
+.tab-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: var(--spacing-1);
+  background: var(--white);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: var(--spacing-2) var(--spacing-3);
+  padding-bottom: calc(var(--spacing-2) + env(safe-area-inset-bottom, 0px));
+  margin: 0;
+  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.12);
+  overflow-x: auto;
+  z-index: var(--z-fixed);
+}
+
+.tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 72px;
+  padding: var(--spacing-3) var(--spacing-2);
+  border-radius: var(--radius-lg);
+  color: var(--gray-500);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  background: transparent;
+}
+
+.tab-btn:hover {
+  background: var(--gray-50);
+  color: var(--primary-color);
+}
+
+.tab-btn.active {
+  background: rgba(var(--primary-color-rgb), 0.1);
+  color: var(--primary-color);
+}
+
+.tab-icon {
+  font-size: var(--font-size-lg);
+}
+
+.tab-label {
+  font-size: var(--font-size-xs);
+}
+
+.tab-panel {
+  animation: slideIn var(--transition-normal);
+}
+
+/* PATCH UX: ruang ekstra di bawah supaya konten terakhir tiap panel (mis.
+   tombol "Simpan Absensi" di ujung tabel siswa yang panjang) tidak
+   ketutupan oleh .tab-nav yang sekarang fixed di bawah layar. */
+/* PATCH MOBILE: padding sebelumnya (88px/84px) pas-pasan dengan tinggi
+   .tab-nav yang sebenarnya (ikon + label + padding ≈ 85-95px), sehingga
+   konten terakhir tiap panel (mis. kotak "Tips:" di panel Rekap) bisa
+   mepet/tertutup sebagian oleh nav yang fixed di bawah -- terlihat di
+   pengujian tampilan mobile. Ditambah jadi lebih longgar. */
+#dashboardSection {
+  padding-bottom: 112px;
+}
+
+@media (max-width: 640px) {
+  #dashboardSection {
+    padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Sub-tabs (di dalam panel Riwayat) */
+.sub-tab-nav {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.sub-tab-btn {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-weight: var(--font-weight-medium);
+  color: var(--gray-500);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.sub-tab-btn:hover {
+  color: var(--primary-color);
+}
+
+.sub-tab-btn.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.sub-tab-panel {
+  animation: slideIn var(--transition-normal);
+}
+
+/* ==================== Panel Header ==================== */
+.panel-header {
+  margin-bottom: var(--spacing-5);
+}
+
+.panel-header h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--gray-800);
+  margin-bottom: var(--spacing-1);
+}
+
+.panel-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--gray-500);
+}
+
+.card-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--gray-500);
+  margin-bottom: var(--spacing-3);
+}
+
+/* ==================== Forms ==================== */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-4);
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-row .form-group,
+.card > .form-group {
+  margin-bottom: var(--spacing-4);
+}
+
+.card label,
+.form-group label {
+  display: block;
+  margin-bottom: var(--spacing-2);
+  font-weight: var(--font-weight-medium);
+  color: var(--gray-700);
+  font-size: var(--font-size-sm);
+}
+
+.card input[type="text"],
+.card input[type="password"],
+.card input[type="date"],
+.card select,
+.login-form input {
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--font-size-base);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  transition: all var(--transition-fast);
+}
+
+.card input:focus,
+.card select:focus,
+.login-form input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+}
+
+.label-icon {
+  margin-right: var(--spacing-1);
+}
+
+/* ==================== Students Section ==================== */
+.students-section {
+  margin-top: var(--spacing-5);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
+}
+
+.section-header h4 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--gray-800);
+}
+
+.quick-status-buttons {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+/* ==================== Status Toggle Group (segmented button H/I/S/A) ====================
+   PATCH: menggantikan <select> per baris siswa. Radio native disembunyikan
+   secara visual (bukan display:none, supaya tetap terfokus lewat keyboard/
+   screen reader), label-nya yang di-styling jadi tombol segmented 4-pilihan
+   berwarna, supaya guru bisa 1x tap dan langsung lihat status dari warnanya
+   tanpa perlu membuka dropdown.
+
+   PATCH (BARU): opsi yang TIDAK terpilih sebelumnya nyaris tak terlihat
+   sebagai tombol (background putih + border abu sangat tipis nyaris tidak
+   kontras dengan latar halaman yang juga putih -- di layar HP terlihat
+   seperti huruf lepas berspasi, bukan grup tombol). Diperbaiki dengan:
+   latar grup abu muda (gray-100) supaya kotak putih tiap opsi kontras
+   jelas terhadapnya, border lebih gelap (gray-300), dan ukuran kotak
+   dinaikkan supaya nyaman disentuh jari (target sentuh minimal 40px,
+   full 44px di breakpoint mobile -- lihat media query di bawah). */
+.status-toggle-group {
+  display: inline-flex;
+  width: 100%;
+  max-width: 220px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--gray-300);
+  background: var(--gray-100);
+}
+
+.status-toggle-input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.status-toggle {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  min-height: 38px;
+  padding: var(--spacing-2) var(--spacing-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--gray-500);
+  background: var(--white);
+  border-right: 1px solid var(--gray-300);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition-fast, 0.15s), color var(--transition-fast, 0.15s);
+}
+
+.status-toggle:last-child {
+  border-right: none;
+}
+
+.status-toggle:hover {
+  background: var(--gray-50);
+}
+
+.status-toggle-input:focus-visible + .status-toggle {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--primary-color);
+  outline-offset: -2px;
+}
+
+.status-toggle-input:checked + .status-toggle--H {
+  background: var(--success-color);
+  color: var(--white);
+}
+
+.status-toggle-input:checked + .status-toggle--I {
+  background: var(--info-color);
+  color: var(--white);
+}
+
+.status-toggle-input:checked + .status-toggle--S {
+  background: #d4a017;
+  color: var(--white);
+}
+
+.status-toggle-input:checked + .status-toggle--A {
+  background: var(--danger-color);
+  color: var(--white);
+}
+
+/* ==================== Tables ==================== */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+}
+
+#studentsTable,
+#waliStudentsTable,
+#ketuaKelasStudentsTable,
+.simple-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+/* PATCH: kolom nomor urut ("No") -- dipakai di SEMUA tabel siswa/daftar
+   di aplikasi ini. Lebar sempit + rata tengah, supaya tidak memakan
+   ruang kolom lain yang lebih penting dibaca. */
+.th-nomor,
+.td-nomor {
+  width: 40px;
+  text-align: center !important;
+}
+
+#studentsTable thead,
+#waliStudentsTable thead,
+.simple-table thead {
+  background: var(--gray-50);
+  border-bottom: 2px solid var(--gray-200);
+}
+
+#studentsTable th,
+#waliStudentsTable th,
+.simple-table th {
+  padding: var(--spacing-3) var(--spacing-4);
+  font-weight: var(--font-weight-semibold);
+  color: var(--gray-700);
+  text-transform: uppercase;
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+
+#studentsTable td,
+#waliStudentsTable td,
+.simple-table td {
+  padding: var(--spacing-3) var(--spacing-4);
+  color: var(--gray-600);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+#studentsTable tbody tr:hover,
+#waliStudentsTable tbody tr:hover,
+.simple-table tbody tr:hover {
+  background: var(--gray-50);
+}
+
+.empty-row td {
+  padding: var(--spacing-8) !important;
+}
+
+/* ==================== PATCH (BARU): Tabel Siswa di Layar Mobile ====================
+   Aplikasi ini dipakai mayoritas dari HP saat guru presensi di kelas.
+   Tabel 3 kolom (NIS/Nama/Kehadiran) berdampingan jadi sempit di layar
+   kecil -- kolom Kehadiran ketiban sisa ruang paling sedikit padahal
+   itu kontrol yang paling sering disentuh. Di bawah 640px, tiap baris
+   direstruktur jadi kartu vertikal: Nama di atas (lebih mudah dibaca
+   sekilas), NIS kecil di bawahnya, lalu tombol status H/I/S/A di baris
+   sendiri selebar penuh kartu supaya target sentuhnya besar (min. 44px,
+   sesuai standar target sentuh mobile) dan nyaman dijempol. */
+@media (max-width: 640px) {
+  #studentsTable thead,
+  #waliStudentsTable thead {
+    display: none;
+  }
+
+  #studentsTable tbody,
+  #waliStudentsTable tbody,
+  #studentsTable tr,
+  #waliStudentsTable tr,
+  #studentsTable td,
+  #waliStudentsTable td {
+    display: block;
+    width: 100%;
+  }
+
+  #studentsTable tr,
+  #waliStudentsTable tr {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-3) var(--spacing-4);
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  #studentsTable td,
+  #waliStudentsTable td {
+    padding: 0;
+    border-bottom: none;
+  }
+
+  /* PATCH (kolom No ditambahkan): sembunyikan nomor urut di tampilan
+     kartu mobile -- di sini urutan siswa sudah jelas terlihat dari
+     susunan kartu yang bertumpuk, jadi angka "No" tidak menambah
+     informasi baru dan cuma memakan ruang. */
+  #studentsTable td:nth-child(1),
+  #waliStudentsTable td:nth-child(1) {
+    display: none;
+  }
+
+  /* Nama siswa ditampilkan paling atas -- lebih penting dibaca sekilas
+     daripada NIS saat guru menyisir daftar sambil presensi. */
+  #studentsTable td:nth-child(3),
+  #waliStudentsTable td:nth-child(3) {
+    order: 1;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--gray-800);
+  }
+
+  #studentsTable td:nth-child(2),
+  #waliStudentsTable td:nth-child(2) {
+    order: 2;
+    font-size: var(--font-size-xs);
+    color: var(--gray-400);
+    margin-bottom: var(--spacing-2);
+  }
+
+  #studentsTable td:nth-child(4),
+  #waliStudentsTable td:nth-child(4) {
+    order: 3;
+  }
+
+  .status-toggle-group {
+    max-width: none;
+    width: 100%;
+  }
+
+  .status-toggle {
+    min-height: 44px;
+    font-size: var(--font-size-base);
+  }
+}
+
+/* PATCH FITUR NILAI (Tahap 2): input nilai per siswa (angka/huruf) --
+   style dasar untuk tampilan desktop (versi mobile-nya ada di dalam
+   @media max-width:640px, blok #nilaiStudentsTable di bawah). */
+.nilai-input-siswa {
+  width: 90px;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+}
+
+.nilai-input-siswa:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* PATCH FITUR NILAI (Tahap 2): versi mobile khusus #nilaiStudentsTable --
+   SENGAJA dibuat sebagai blok TERPISAH (bukan menambah #nilaiStudentsTable
+   ke dalam blok #studentsTable/#waliStudentsTable di atas), supaya CSS
+   tabel Absensi yang sudah teruji sama sekali tidak ikut tersentuh.
+   Style dasarnya (lebar, border, dst) sudah didapat gratis lewat class
+   "simple-table" yang dipasang di HTML -- di sini cuma menambahkan
+   perilaku responsif ala-kartu di layar sempit, sama seperti tabel
+   Absensi. */
+@media (max-width: 640px) {
+  #nilaiStudentsTable thead {
+    display: none;
+  }
+
+  #nilaiStudentsTable tbody,
+  #nilaiStudentsTable tr,
+  #nilaiStudentsTable td {
+    display: block;
+    width: 100%;
+  }
+
+  #nilaiStudentsTable tr {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-3) var(--spacing-4);
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  #nilaiStudentsTable td {
+    padding: 0;
+    border-bottom: none;
+  }
+
+  /* PATCH (kolom No ditambahkan): sembunyikan nomor urut di kartu mobile
+     -- sama alasannya dengan tabel Absensi (urutan kartu sudah cukup
+     jelas tanpa perlu angka eksplisit). */
+  #nilaiStudentsTable td:nth-child(1) {
+    display: none;
+  }
+
+  /* Nama siswa ditampilkan paling atas -- sama alasannya dengan tabel
+     Absensi (lebih penting dibaca sekilas daripada NIS). */
+  #nilaiStudentsTable td:nth-child(3) {
+    order: 1;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--gray-800);
+  }
+
+  #nilaiStudentsTable td:nth-child(2) {
+    order: 2;
+    font-size: var(--font-size-xs);
+    color: var(--gray-400);
+    margin-bottom: var(--spacing-2);
+  }
+
+  #nilaiStudentsTable td:nth-child(4) {
+    order: 3;
+    margin-top: var(--spacing-2);
+  }
+
+  #nilaiStudentsTable .nilai-input-siswa {
+    width: 100%;
+    min-height: 44px; /* target sentuh minimal, sama standarnya dengan .status-toggle */
+    font-size: var(--font-size-base);
+  }
+}
+
+/* ==================== Empty States ==================== */
+.empty-state-illustration {
+  text-align: center;
+  padding: var(--spacing-6);
+  color: var(--gray-500);
+}
+
+.empty-state-illustration svg {
+  width: 120px;
+  height: auto;
+  margin: 0 auto var(--spacing-3);
+}
+
+.empty-state-illustration.large svg {
+  width: 160px;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--gray-500);
+  padding: var(--spacing-6);
+  font-size: var(--font-size-sm);
+}
+
+/* ==================== Rekap Cards ==================== */
+.rekap-card {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-6);
+  display: flex;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+}
+
+.rekap-card-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.rekap-card-content {
+  flex: 1;
+}
+
+.rekap-card-content h4 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--gray-800);
+  margin-bottom: var(--spacing-2);
+}
+
+.rekap-card-desc {
+  color: var(--gray-600);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-3);
+}
+
+.rekap-card-info {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.info-chip {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--gray-100);
+  color: var(--gray-700);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.info-chip-primary {
+  background: rgba(var(--primary-color-rgb), 0.1);
+  color: var(--primary-color);
+}
+
+/* ==================== Info Banner / Info Box ==================== */
+.info-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: rgba(var(--primary-color-rgb), 0.06);
+  border-radius: var(--radius-lg);
+}
+
+.info-icon {
+  font-size: var(--font-size-2xl);
+  flex-shrink: 0;
+}
+
+.info-box {
+  display: flex;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4) var(--spacing-5);
+  background: rgba(255, 209, 102, 0.1);
+  border-left: 4px solid var(--warning-color);
+  border-radius: var(--radius-lg);
+  margin-top: var(--spacing-5);
+}
+
+.info-box-icon {
+  font-size: var(--font-size-xl);
+  flex-shrink: 0;
+}
+
+.info-box-content strong {
+  color: var(--gray-800);
+}
+
+.info-box-content p {
+  color: var(--gray-600);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-1);
+}
+
+/* ==================== Section Divider ==================== */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin: var(--spacing-6) 0;
+}
+
+.section-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--gray-200);
+}
+
+.section-divider-text {
+  font-weight: var(--font-weight-semibold);
+  color: var(--gray-600);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+/* ==================== Chart / Trend Line ==================== */
+.chart-wrapper {
+  position: relative;
+  min-height: 230px;
+}
+
+.chart-wrapper canvas {
+  max-width: 100%;
+}
+
+/* PATCH GRAFIK: toggle periode Minggu/Bulan/Semester -- mengganti
+   agregasi yang ditampilkan tanpa perlu fetch ulang ke server (data
+   mentah sudah ada di trendDataStore, lihat js/dashboard.js). */
+.trend-period-toggle {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-3);
+}
+
+.trend-period-btn {
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--gray-600);
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.trend-period-btn:hover {
+  background: var(--gray-200);
+}
+
+.trend-period-btn.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--white);
+}
+
+/* PATCH GRAFIK: line chart SVG menggantikan bar chart CSS -- lebih pas
+   untuk data berbasis waktu (arah tren naik/turun terlihat sebagai satu
+   alur garis), dan viewBox tetap (600x200) diregangkan mengisi lebar
+   kontainer lewat preserveAspectRatio="none" supaya otomatis responsif. */
+.trend-line-svg {
+  width: 100%;
+  height: 190px;
+  display: block;
+  overflow: visible;
+}
+
+.trend-gridline {
+  stroke: var(--gray-100);
+  stroke-width: 1;
+}
+
+.trend-gridlabel {
+  font-size: 9px;
+  fill: var(--gray-400);
+}
+
+.trend-area {
+  fill: rgba(var(--primary-color-rgb), 0.08);
+  stroke: none;
+}
+
+.trend-line {
+  stroke: var(--primary-color);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.trend-dot {
+  fill: var(--white);
+  stroke: var(--primary-color);
+  stroke-width: 2.5;
+}
+
+.trend-value-label {
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  fill: var(--gray-700);
+}
+
+.trend-x-label {
+  font-size: 9px;
+  fill: var(--gray-500);
+}
+
+.trend-empty {
+  padding: var(--spacing-6) 0;
+  text-align: center;
+}
+
+/* ==================== Fitur: Delegasi ke Ketua Kelas ==================== */
+.delegasi-card {
+  border-left: 4px solid var(--info-color);
+}
+
+.delegasi-status {
+  font-size: var(--font-size-sm);
+  color: var(--gray-600);
+  margin: var(--spacing-3) 0;
+  padding: var(--spacing-3);
+  background: var(--gray-50);
+  border-radius: var(--radius-md);
+}
+
+.delegasi-status-aktif {
+  background: rgba(6, 214, 160, 0.1);
+  color: #059170;
+  font-weight: var(--font-weight-medium);
+}
+
+.delegasi-link-box {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.delegasi-link-input {
+  flex: 1;
+  min-width: 200px;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  background: var(--gray-50);
+  color: var(--gray-700);
+}
+
+.delegasi-actions {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+/* ==================== Notifications / Toast ====================
+   js/utils.js showNotification() memakai class-class ini, TIDAK
+   sama dengan .toast/.toast-container di components.css.
+   PATCH UX: dipindah dari pojok kanan-atas ke TENGAH LAYAR (fixed,
+   center horizontal & vertikal) supaya notifikasi (mis. "Absensi
+   tersimpan!") tidak luput dari perhatian pengguna -- sebelumnya
+   posisi pojok atas sering tidak disadari, terutama di HP saat
+   pengguna sedang fokus mengisi tabel siswa yang panjang. */
+.notification-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--z-tooltip);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+  max-width: 380px;
+  width: calc(100% - var(--spacing-8));
+  /* Container fixed ini sendiri tidak boleh menangkap klik (supaya celah
+     kosong di sekitar toast tidak memblokir interaksi ke halaman di
+     baliknya) -- tiap .notification di bawah mengaktifkan lagi pointer-events
+     miliknya sendiri supaya tombol close tetap bisa diklik. */
+  pointer-events: none;
+}
+
+.notification {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4) var(--spacing-5);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  background: var(--white);
+  border-left: 4px solid var(--info-color);
+  animation: notifPopIn var(--transition-normal);
+  font-size: var(--font-size-sm);
+  color: var(--gray-700);
+  pointer-events: auto;
+}
+
+.notification-success { border-left-color: var(--success-color); }
+.notification-error   { border-left-color: var(--danger-color); }
+.notification-warning  { border-left-color: var(--warning-color); }
+.notification-info     { border-left-color: var(--info-color); }
+
+.notification.fade-out {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all var(--transition-normal);
+}
+
+.notification .close-btn {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  color: var(--gray-400);
+  flex-shrink: 0;
+}
+
+.notification .close-btn:hover {
+  color: var(--gray-600);
+}
+
+@keyframes notifPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .notification-container {
+    width: calc(100% - var(--spacing-8));
+    max-width: 340px;
+  }
+}
+
+/* ==================== Container umum (app shell) ====================
+   index.html hanya punya <div class="container"><main id="app"></main></div>
+   tanpa padding/max-width -- pastikan konten dashboard tidak mepet ke tepi
+   layar dan tetap center di layar lebar. */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--spacing-5) var(--spacing-4);
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: var(--spacing-4) var(--spacing-3);
+  }
+}
+
+/* =========================================================
+   PATCH TATA ULANG NAVIGASI: menu dropdown avatar (Profil, Admin,
+   Keluar) -- lihat templates/dashboard.html #avatarDropdownMenu dan
+   js/main.js untuk logika buka/tutupnya.
+   ========================================================= */
+.avatar-menu-wrapper {
+  position: relative;
+}
+
+/* =========================================================
+   PATCH TATA ULANG NAVIGASI (v3 -- ADAPTIF per ukuran layar)
+   ---------------------------------------------------------
+   MOBILE (default, di bawah 640px): kartu "Selamat Datang" tetap jadi
+   pemicu klik, menu tampil sebagai BOTTOM SHEET (geser dari bawah).
+   DESKTOP (640px ke atas, lihat @media di bagian bawah blok ini): kartu
+   "Selamat Datang" jadi tampilan biasa saja (tidak bisa diklik lagi),
+   pemicu pindah ke ikon baru pojok kanan atas (.header-menu-btn-desktop),
+   menu tampil sebagai dropdown biasa dekat ikon itu.
+   Breakpoint 640px dipakai supaya konsisten dengan breakpoint yang sudah
+   ada di tempat lain (lihat .container di bagian akhir file ini).
+   ========================================================= */
+.header-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.header-trigger-arrow {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--gray-400);
+  font-size: 1.1rem;
+  transition: transform var(--transition-fast);
+}
+
+/* Panah ikut berputar 180 derajat saat menu terbuka -- penanda visual
+   tambahan (bukan cuma warna aria-expanded), khusus mobile (di desktop
+   panahnya disembunyikan, lihat @media di bawah). */
+.header-trigger[aria-expanded="true"] .header-trigger-arrow {
+  transform: rotate(180deg);
+}
+
+/* PATCH v3: ikon pemicu KHUSUS DESKTOP -- disembunyikan secara default
+   (mobile), baru dimunculkan lewat @media di bawah. */
+.header-menu-btn-desktop {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-left: auto;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--gray-100);
+  color: var(--gray-600);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.header-menu-btn-desktop:hover {
+  background: var(--gray-200);
+}
+
+/* Overlay gelap -- cuma relevan untuk bottom sheet (mobile), disembunyikan
+   otomatis di desktop lewat @media di bawah (dropdown biasa tidak perlu
+   menggelapkan seluruh layar). Warna & blur disamakan dengan
+   .modal-overlay (css/components.css) untuk konsistensi gaya. */
+.avatar-dropdown-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: var(--z-modal-backdrop);
+}
+
+/* Handle kecil di atas -- penanda visual khas bottom sheet, disembunyikan
+   di desktop lewat @media di bawah. */
+.avatar-dropdown-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--gray-200);
+  margin: var(--spacing-1) auto var(--spacing-2) auto;
+  flex-shrink: 0;
+}
+
+@keyframes avatarSheetSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* --- MOBILE (default): bottom sheet, geser dari bawah, lebar penuh --- */
+.avatar-dropdown-menu {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: none;
+  background: var(--white);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-2) var(--spacing-2) var(--spacing-5) var(--spacing-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  z-index: var(--z-modal);
+  animation: avatarSheetSlideUp 0.25s ease;
+}
+
+/* PATCH v2 (visual dropdown): header identitas -- nama & peran akun yang
+   login, ditampilkan di atas daftar menu. Diisi lewat JS (main.js), lihat
+   #avatarDropdownNama/#avatarDropdownPeran di templates/dashboard.html. */
+.avatar-dropdown-header {
+  padding: var(--spacing-3) var(--spacing-3) var(--spacing-2) var(--spacing-3);
+}
+
+.avatar-dropdown-nama {
+  margin: 0;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  color: var(--gray-800);
+  /* Batasi 1 baris + "..." kalau kepanjangan -- penting di layar sempit
+     (HP) supaya nama panjang tidak bikin dropdown melebar tidak
+     terkendali atau teksnya patah berantakan. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.avatar-dropdown-peran {
+  margin: 2px 0 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--gray-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.avatar-dropdown-separator {
+  height: 1px;
+  background: var(--gray-100);
+  margin: var(--spacing-1) var(--spacing-2);
+}
+
+/* Override tampilan .tab-btn yang aslinya vertikal (ikon di atas, teks
+   di bawah, dipakai di baris tab bawah) -- di dalam menu ini kita mau
+   baris horizontal biasa (ikon lalu teks bersebelahan). Padding lega --
+   target sentuh yang besar penting terutama di HP (layar sentuh butuh
+   area tap lebih besar dibanding presisi mouse di desktop). */
+.avatar-dropdown-item {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  border-radius: var(--radius-lg);
+}
+
+/* Jangan tampilkan highlight "active" tab di dalam menu -- terasa aneh
+   kalau item Profil kelihatan "menyala" terus menerus di sini padahal
+   menunya sendiri sedang tertutup. */
+.avatar-dropdown-item.active {
+  background: transparent;
+  color: var(--gray-700);
+}
+
+.avatar-dropdown-item-bahaya {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-3);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  color: var(--danger-color);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  text-align: left;
+  transition: background-color var(--transition-fast);
+}
+
+.avatar-dropdown-item-bahaya:hover {
+  background: var(--gray-100);
+}
+
+/* PATCH v2 (visual dropdown): ikon dengan latar warna lembut (icon chip)
+   -- supaya tiap item lebih "berisi" secara visual, bukan cuma emoji
+   polos mengambang. Ukuran cukup besar (36px) supaya nyaman jadi target
+   sentuh di HP. */
+.avatar-dropdown-icon-chip {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.avatar-dropdown-icon-chip-biru {
+  background: rgba(var(--primary-color-rgb), 0.12);
+}
+
+.avatar-dropdown-icon-chip-abu {
+  background: var(--gray-100);
+}
+
+.avatar-dropdown-icon-chip-merah {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+/* --- DESKTOP (640px ke atas): dropdown biasa di pojok kanan atas --- */
+@media (min-width: 640px) {
+  /* Kartu "Selamat Datang" jadi tampilan biasa saja -- tidak bisa diklik
+     lagi (pointer-events:none), panahnya ikut disembunyikan supaya tidak
+     ada sisa penanda "bisa diklik" yang menyesatkan. */
+  .header-trigger {
+    cursor: default;
+    pointer-events: none;
+  }
+  .header-trigger-arrow {
+    display: none;
+  }
+
+  /* Ikon pemicu pojok kanan atas -- SATU-SATUNYA cara buka menu akun di
+     breakpoint ini. */
+  .header-menu-btn-desktop {
+    display: flex;
+  }
+
+  /* Dropdown biasa tidak perlu overlay gelap -- konvensi umum aplikasi
+     web (Gmail, GitHub, dst) tidak menggelapkan seluruh layar untuk menu
+     akun sesederhana ini. */
+  .avatar-dropdown-overlay {
+    display: none;
+  }
+
+  .avatar-dropdown-handle {
+    display: none;
+  }
+
+  @keyframes avatarDropdownFadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .avatar-dropdown-menu {
+    position: fixed;
+    /* PATCH: top/right di sini cuma NILAI CADANGAN (fallback) -- posisi
+       sebenarnya sekarang dihitung dinamis oleh posisikanDropdownDesktop()
+       di js/main.js berdasarkan posisi NYATA ikon #headerMenuBtnDesktop
+       (lewat getBoundingClientRect()), supaya dropdown selalu menempel
+       pas di bawah ikonnya, di mana pun ikon itu berada -- bukan
+       menggantung jauh di tepi layar kalau header tidak selebar layar
+       penuh (ada .container dengan max-width). Inline style dari JS
+       otomatis menang atas nilai di sini karena spesifisitasnya lebih
+       tinggi. */
+    top: 84px;
+    left: auto;
+    right: var(--spacing-6);
+    bottom: auto;
+    width: 260px;
+    max-width: 260px;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-2);
+    animation: avatarDropdownFadeIn 0.15s ease;
+  }
+}
