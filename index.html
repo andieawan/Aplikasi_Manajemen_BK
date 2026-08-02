@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="theme-color" content="#33427A">
+    <title>Aplikasi Manajemen BK</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- CSS di-reuse persis dari go_absen_siswa supaya tampilan konsisten -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <div class="container">
+        <main id="app"></main>
+    </div>
+
+    <div id="globalLoadingOverlay" class="loading-overlay hidden" role="status" aria-live="polite">
+        <div class="loading-overlay__content">
+            <span class="spinner loading-overlay__spinner"></span>
+            <p id="globalLoadingText" class="loading-overlay__text">Memproses...</p>
+        </div>
+    </div>
+
+    <div id="customAlert" class="modal-overlay" role="dialog" aria-modal="true">
+        <div class="modal-box">
+            <div id="alertIcon" class="modal-icon icon-success">✓</div>
+            <h3 id="alertTitle" class="modal-title">Pemberitahuan</h3>
+            <p id="alertMessage" class="modal-message">Pesan di sini</p>
+            <button class="modal-btn btn-primary" onclick="closeCustomAlert()">OK, Mengerti</button>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay" role="dialog" aria-modal="true">
+        <div class="modal-box">
+            <div class="modal-icon icon-warning">❓</div>
+            <h3 class="modal-title">Konfirmasi</h3>
+            <p id="confirmMessage" class="modal-message">Pesan di sini</p>
+            <div class="modal-btn-group">
+                <button id="confirmBtnNo" class="modal-btn btn-secondary">Tidak</button>
+                <button id="confirmBtnYes" class="modal-btn btn-primary">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification-container"></div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
