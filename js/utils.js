@@ -4,6 +4,18 @@
  */
 
 // Escape HTML untuk mencegah XSS
+/**
+ * 'superadmin' dianggap setara 'bk' untuk keperluan tampilan UI (form
+ * tambah, tombol update, dst) -- backend (hasRole() di Auth.gs) sudah
+ * meloloskan superadmin di semua pengecekan, ini cuma menyamakan sisi
+ * tampilan supaya tidak ada form yang seharusnya boleh diakses malah
+ * disembunyikan.
+ */
+export function punyaAksesBK(sesi) {
+  const roles = (sesi && sesi.roleList) || [];
+  return roles.includes('bk') || roles.includes('superadmin');
+}
+
 export function escapeHtml(str) {
     if (typeof str !== 'string') return str;
     const map = {
