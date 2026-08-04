@@ -1,17 +1,17 @@
 import { postJson } from './api.js';
-import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml } from './utils.js';
+import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, punyaAksesBK } from './utils.js';
 
 export async function renderPresensiPage(sesi) {
     const app = document.getElementById('app');
-    const isBK = (sesi.roleList || []).includes('bk');
+    const isBK = punyaAksesBK(sesi);
     const isKepsek = (sesi.roleList || []).includes('kepsek');
     const kelasWali = sesi.kelasWali || '';
 
     app.innerHTML = `
         <header class="page-header"><h1>Presensi & Keterlambatan</h1></header>
-        <p><em>Fitur ini butuh action <code>getAbsenUntukBK</code> di go_absen_siswa yang belum dibuat --
-        lihat catatan di kodegs/PresensiService.gs. Form di bawah tetap disiapkan supaya begitu action
-        itu selesai, fitur langsung berfungsi tanpa perubahan kode frontend.</em></p>
+        <p><em>Menampilkan siswa dengan jumlah Alpa &ge; threshold, diambil dari data absensi go_absen_siswa.
+        "Telat" tidak ditampilkan di sini -- dicek manual terpisah oleh BK, karena go_absen_siswa belum
+        mencatatnya sebagai status tersendiri.</em></p>
         ${isBK ? `
         <section class="card">
             <h2>Threshold Notifikasi</h2>
@@ -67,9 +67,9 @@ async function muatSiswaPerluPerhatian(kelas) {
         if (!list.length) { container.innerHTML = '<p>Tidak ada siswa yang melewati threshold di kelas ini.</p>'; return; }
         container.innerHTML = `
             <table class="tabel-data">
-                <thead><tr><th>Nama</th><th>Alpa</th><th>Telat</th><th>Izin</th><th>Sakit</th></tr></thead>
+                <thead><tr><th>Nama</th><th>Alpa</th><th>Izin</th><th>Sakit</th><th>Hadir</th></tr></thead>
                 <tbody>${list.map(function (s) {
-                    return `<tr><td>${escapeHtml(s.nama)}</td><td>${s.jumlahAlpa}</td><td>${s.jumlahTelat}</td><td>${s.jumlahIzin}</td><td>${s.jumlahSakit}</td></tr>`;
+                    return `<tr><td>${escapeHtml(s.nama)}</td><td>${s.jumlahAlpa}</td><td>${s.jumlahIzin}</td><td>${s.jumlahSakit}</td><td>${s.jumlahHadir}</td></tr>`;
                 }).join('')}</tbody>
             </table>`;
     } catch (err) {

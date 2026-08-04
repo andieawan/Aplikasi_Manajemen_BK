@@ -1,9 +1,9 @@
 import { postJson } from './api.js';
-import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, validateNis } from './utils.js';
+import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, validateNis, punyaAksesBK } from './utils.js';
 
 export async function renderSuratPage(sesi) {
     const app = document.getElementById('app');
-    const isBK = (sesi.roleList || []).includes('bk');
+    const isBK = punyaAksesBK(sesi);
 
     app.innerHTML = `
         <header class="page-header"><h1>Dashboard Surat</h1></header>

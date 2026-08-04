@@ -1,9 +1,9 @@
 import { postJson } from './api.js';
-import { showGlobalLoading, hideGlobalLoading, escapeHtml } from './utils.js';
+import { showGlobalLoading, hideGlobalLoading, escapeHtml, punyaAksesBK } from './utils.js';
 
 export async function renderDashboardPage(sesi) {
     const app = document.getElementById('app');
-    const isBKKepsek = (sesi.roleList || []).some(function (r) { return r === 'bk' || r === 'kepsek'; });
+    const isBKKepsek = punyaAksesBK(sesi) || (sesi.roleList || []).includes('kepsek');
 
     app.innerHTML = `<header class="page-header"><h1>Dashboard & Rekap</h1></header><div id="dashboardContainer">Memuat ringkasan...</div>`;
 

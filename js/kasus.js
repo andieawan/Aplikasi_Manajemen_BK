@@ -1,10 +1,10 @@
 import { postJson } from './api.js';
-import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, formatDateIndo, validateNis } from './utils.js';
+import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, formatDateIndo, validateNis, punyaAksesBK } from './utils.js';
 import { showConfirm } from './modal.js';
 
 export async function renderKasusPage(sesi) {
     const app = document.getElementById('app');
-    const isBK = (sesi.roleList || []).includes('bk');
+    const isBK = punyaAksesBK(sesi);
     const isKepsek = (sesi.roleList || []).includes('kepsek');
     const kelasWali = sesi.kelasWali || '';
 
