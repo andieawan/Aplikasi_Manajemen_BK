@@ -136,3 +136,98 @@ function hasRole(user, allowedRoles) {
 function isWaliKelasDari(user, kelas) {
   return !!user && !!user.kelasWali && user.kelasWali === kelas;
 }
+
+// =====================================================================
+// LOGIN MANUAL (selain lewat SSO cookie dari go_absen_siswa)
+// Hashing (hashPassword/generateSalt) DISALIN PERSIS dari
+// go_absen_siswa/kodegs/Auth.gs -- WAJIB identik, karena keduanya
+// membaca/menulis kolom salt(G)+hash(H) yang sama di sheet Akun_Guru
+// yang sama. Kalau algoritmanya beda, password yang diganti lewat 1
+// aplikasi akan gagal divalidasi di aplikasi satunya.
+// =====================================================================
+
+const MAX_PERCOBAAN_LOGIN = 5;
+const DURASI_KUNCI_DETIK = 15 * 60;
+
+function hashPassword(password, salt) {
+  const rawHash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, password + salt);
+  return rawHash.map(function (b) { return ((b < 0 ? b + 256 : b).toString(16)).padStart(2, '0'); }).join('');
+}
+
+function generateSalt() {
+  return Utilities.getUuid().replace(/-/g, '');
+}
+
+/**
+ * Login manual langsung ke app BK (tidak lewat go_absen_siswa dulu).
+ * return { success, data: {username, token, nama, kelasWali, roleList}, message }
+ * Frontend WAJIB menulis hasilnya ke cookie SSO (setSsoCookie()) supaya
+ * tetap saling terhubung dengan go_absen_siswa (SSO 2 arah).
+ */
+function handleLoginBK(username, password) {
+  const cache = CacheService.getScriptCache();
+  const cacheKey = 'loginFailBK_' + username;
+  const percobaan = Number(cache.get(cacheKey) || 0);
+  if (percobaan >= MAX_PERCOBAAN_LOGIN) {
+    return { success: false, message: 'Terlalu banyak percobaan login gagal. Coba lagi dalam 15 menit.' };
+  }
+
+  const ss = getMasterGuruSs();
+  const sheet = ss.getSheetByName('Akun_Guru');
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] !== username) continue;
+
+    const storedHash = data[i][7];
+    let passwordValid = false;
+    let perluUpgradeHash = false;
+
+    if (storedHash) {
+      let salt = data[i][6];
+      if (!salt) {
+        salt = generateSalt();
+        sheet.getRange(i + 1, 7).setValue(salt);
+      }
+      passwordValid = (hashPassword(password, salt) === storedHash);
+    } else {
+      passwordValid = (data[i][1] === password);
+      if (passwordValid) perluUpgradeHash = true;
+    }
+
+    if (!passwordValid) break;
+
+    const roleList = parseRoleList(data[i][KOLOM_ROLE_0INDEXED]);
+    if (roleList.indexOf('nonaktif') !== -1) {
+      return { success: false, message: 'Akun ini telah dinonaktifkan. Hubungi admin sekolah.' };
+    }
+
+    cache.remove(cacheKey);
+
+    if (perluUpgradeHash) {
+      try {
+        const saltBaru = data[i][6] || generateSalt();
+        const hashBaru = hashPassword(password, saltBaru);
+        sheet.getRange(i + 1, 7).setValue(saltBaru);
+        sheet.getRange(i + 1, 8).setValue(hashBaru);
+        sheet.getRange(i + 1, 2).clearContent();
+      } catch (upgradeError) {
+        Logger.log('Auto-upgrade hash GAGAL untuk user ' + username + ': ' + upgradeError.toString());
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        username: username,
+        token: buatToken(username),
+        nama: data[i][2],
+        kelasWali: data[i][5] ? String(data[i][5]).trim() : '',
+        roleList: roleList
+      }
+    };
+  }
+
+  cache.put(cacheKey, String(percobaan + 1), DURASI_KUNCI_DETIK);
+  return { success: false, message: 'Username atau password salah.' };
+}

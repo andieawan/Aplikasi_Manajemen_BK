@@ -7,6 +7,12 @@ function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents);
     const action = body.action;
+
+    // 'login' ditangani terpisah -- belum ada token di titik ini.
+    if (action === 'login') {
+      return jsonResponse(handleLoginBK(body.username, body.password));
+    }
+
     // Frontend WAJIB mengirim username+token (dibaca dari cookie SSO
     // .smkibupakusari.sch.id oleh JS di sisi client) -- lihat Auth.gs.
     const user = getSessionUser(body.username, body.token);
