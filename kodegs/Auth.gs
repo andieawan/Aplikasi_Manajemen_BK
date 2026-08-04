@@ -126,9 +126,16 @@ function getSessionUser(username, token) {
   return akun;
 }
 
-/** Cek apakah user sesi sekarang punya salah satu role yang diizinkan. */
+/**
+ * Cek apakah user sesi sekarang punya salah satu role yang diizinkan.
+ * 'superadmin' SELALU lolos di sini, apa pun allowedRoles-nya -- akses
+ * penuh ke semua fitur, sama seperti 'bk'. Sengaja diletakkan di 1 titik
+ * pusat ini (bukan ditambahkan manual ke tiap pemanggilan hasRole() di
+ * *Service.gs) supaya konsisten otomatis untuk fitur baru ke depannya.
+ */
 function hasRole(user, allowedRoles) {
   if (!user || !user.roleList) return false;
+  if (user.roleList.indexOf('superadmin') !== -1) return true;
   return user.roleList.some(function (r) { return allowedRoles.indexOf(r) !== -1; });
 }
 
