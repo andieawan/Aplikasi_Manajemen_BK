@@ -1,5 +1,5 @@
-import { initModalHandlers } from './modal.js';
-import { getSsoCookie } from './ssocookie.js';
+import { initModalHandlers, showConfirm } from './modal.js';
+import { getSsoCookie, deleteSsoCookie } from './ssocookie.js';
 import { renderLoginPage } from './login.js';
 import { renderPelanggaranPage } from './pelanggaran.js';
 import { renderKasusPage } from './kasus.js';
@@ -54,7 +54,16 @@ function renderNav() {
     }
     nav.innerHTML = MENU.map(function (m) {
         return `<a href="#${m.hash}" class="nav-link">${m.label}</a>`;
-    }).join('');
+    }).join('') + `<a href="#" id="btnLogout" class="nav-link" style="margin-left:auto;color:var(--danger-color);">Logout</a>`;
+
+    document.getElementById('btnLogout').addEventListener('click', async function (e) {
+        e.preventDefault();
+        const yakin = await showConfirm('Yakin ingin logout?', 'Logout');
+        if (!yakin) return;
+        deleteSsoCookie();
+        location.hash = '';
+        location.reload();
+    });
 }
 
 function renderHalamanAktif() {
