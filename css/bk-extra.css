@@ -1,0 +1,138 @@
+/* =========================================================
+   bk-extra.css
+   Pola sama seperti app-ui.css di go_absen_siswa: melengkapi class yang
+   dipakai template Aplikasi Manajemen BK tapi tidak didefinisikan di
+   css/*.css asli (main-nav, nav-link, page-header, dashboard-grid,
+   stat-card, text-danger, textarea). TIDAK mengubah file CSS lain --
+   cukup di-import terakhir di css/main.css.
+   ========================================================= */
+
+/* ---- Nav utama (top bar, beda dari .tab-nav bottom bar go_absen_siswa
+   karena BK punya 7 menu -- kepanjangan kalau dipaksa jadi tab bawah). ---- */
+.main-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-3) var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+  box-shadow: var(--shadow-md);
+}
+
+.nav-link {
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-lg);
+  color: var(--gray-600);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.nav-link:hover {
+  background: var(--gray-50);
+  color: var(--primary-color);
+}
+
+/* ---- Header halaman ---- */
+.page-header {
+  margin-bottom: var(--spacing-5);
+}
+
+.page-header h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--gray-800);
+}
+
+.page-header p {
+  color: var(--gray-500);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-1);
+}
+
+/* ---- Kartu di dalam .card butuh jarak antar section ---- */
+.card + .card {
+  margin-top: var(--spacing-5);
+}
+
+/* ---- Textarea (belum ada styling sama sekali di CSS asli) ---- */
+.card textarea {
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--font-size-base);
+  font-family: var(--font-family);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  resize: vertical;
+}
+
+.card textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* input[type="number"] belum distyle di app-ui.css (cuma text/password/date) */
+.card input[type="number"] {
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--font-size-base);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+}
+
+.card input[type="number"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* ---- Tabel data sederhana (dipetakan ke .simple-table + .table-wrapper
+   yang sudah ada, supaya tidak perlu ubah tiap file JS satu-satu) ---- */
+.tabel-data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.tabel-data th,
+.tabel-data td {
+  padding: var(--spacing-3) var(--spacing-3);
+  text-align: left;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.tabel-data th {
+  background: var(--gray-50);
+  font-weight: var(--font-weight-semibold);
+  color: var(--gray-700);
+}
+
+/* ---- Dashboard ringkasan ---- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+}
+
+.stat-card {
+  text-align: center;
+}
+
+.stat-card h3 {
+  font-size: var(--font-size-3xl);
+  color: var(--primary-color);
+  font-weight: var(--font-weight-bold);
+}
+
+.stat-card p {
+  color: var(--gray-500);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-1);
+}
+
+/* ---- Utility ---- */
+.text-danger {
+  color: var(--danger-color);
+}
