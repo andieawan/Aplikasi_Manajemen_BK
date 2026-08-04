@@ -1,5 +1,6 @@
-import { initModalHandlers, showAlert } from './modal.js';
+import { initModalHandlers } from './modal.js';
 import { getSsoCookie } from './ssocookie.js';
+import { renderLoginPage } from './login.js';
 import { renderPelanggaranPage } from './pelanggaran.js';
 import { renderKasusPage } from './kasus.js';
 import { renderPresensiPage } from './presensi.js';
@@ -20,19 +21,28 @@ const MENU = [
 
 let sesiGlobal = null;
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     initModalHandlers();
 
     sesiGlobal = getSsoCookie();
     if (!sesiGlobal || !sesiGlobal.username || !sesiGlobal.token) {
-        await showAlert('Sesi tidak ditemukan. Silakan login lewat aplikasi absensi terlebih dahulu.', 'Sesi Tidak Valid', 'warning');
+        // Bukan cuma alert lagi -- BK sekarang punya login manual sendiri,
+        // tidak wajib lewat go_absen_siswa dulu (lihat login.js).
+        renderLoginPage(function (sesiBaru) {
+            sesiGlobal = sesiBaru;
+            mulaiApp();
+        });
         return;
     }
 
+    mulaiApp();
+});
+
+function mulaiApp() {
     renderNav();
     window.addEventListener('hashchange', renderHalamanAktif);
     renderHalamanAktif();
-});
+}
 
 function renderNav() {
     let nav = document.getElementById('mainNav');
