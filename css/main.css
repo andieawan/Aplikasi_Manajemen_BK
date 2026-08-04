@@ -15,11 +15,11 @@
    (dan idealnya juga versi di index.html), supaya browser pengguna
    benar-benar ambil ulang, bukan diam-diam pakai cache lama.
 */
-@import url('variables.css?v=20260731k');
-@import url('reset.css?v=20260731k');
-@import url('layout.css?v=20260731k');
-@import url('components.css?v=20260731k');
-@import url('utilities.css?v=20260731k');
+@import url('variables.css?v=20260805a');
+@import url('reset.css?v=20260805a');
+@import url('layout.css?v=20260805a');
+@import url('components.css?v=20260805a');
+@import url('utilities.css?v=20260805a');
 
 /* PATCH: app-ui.css berisi perbaikan mismatch nama class
    (.btn-primary vs .btn--primary, dll) dan class yang tadinya
@@ -27,7 +27,13 @@
    Diimpor PALING TERAKHIR supaya melengkapi tanpa menimpa
    style yang sudah benar di file-file sebelumnya. Lihat
    komentar di dalam app-ui.css untuk detail lengkap. */
-@import url('app-ui.css?v=20260731k');
+@import url('app-ui.css?v=20260805a');
+
+/* bk-extra.css: class tambahan khusus template Aplikasi Manajemen BK
+   yang tidak ada di go_absen_siswa (main-nav, page-header, dashboard-grid,
+   dst) -- lihat komentar di dalam file itu. Diimpor PALING TERAKHIR
+   setelah app-ui.css. */
+@import url('bk-extra.css?v=20260805a');
 
 /* 
   Catatan untuk Developer:
