@@ -1,13 +1,27 @@
 import { CONFIG } from './config.js';
 import { getSsoCookie } from './ssocookie.js';
 
+// Temuan audit #2: log respons mentah HANYA saat flag ini true. Jangan
+// commit dengan nilai true -- ini bisa membocorkan data sensitif (mis.
+// detail Kasus BK) ke siapa pun yang membuka DevTools di perangkat yang
+// sedang login. Nyalakan sementara saat troubleshooting, matikan lagi
+// sebelum push.
+const DEBUG_API = false;
+
+// Temuan audit #1: handler global saat sesi kadaluarsa/invalid -- di-set
+// oleh main.js lewat setSessionExpiredHandler() saat inisialisasi. Pakai
+// callback (bukan import main.js langsung dari sini) supaya tidak terjadi
+// circular import (main.js -> pelanggaran.js/dst -> api.js -> main.js).
+let onSessionExpired = null;
+
+export function setSessionExpiredHandler(fn) {
+  onSessionExpired = fn;
+}
+
 /**
  * Kirim action ke backend Apps Script BK. Pola sama seperti postJson() di
  * go_absen_siswa/js/api.js, tapi ditambah username+token dari cookie SSO
  * (backend tidak baca cookie langsung -- lihat catatan di kodegs/Auth.gs).
- * Kalau sesi tidak ada, panggil onSesiHilang() (biasanya render halaman
- * login) -- tidak lagi auto-redirect, karena BK sekarang punya login
- * sendiri, tidak wajib lewat go_absen_siswa dulu.
  */
 export async function postJson(action, data) {
   const sesi = getSsoCookie();
@@ -21,14 +35,23 @@ export async function postJson(action, data) {
     body: JSON.stringify(Object.assign({ action, username: sesi.username, token: sesi.token }, data))
   });
   const rawText = await res.text();
-  // DEBUG SEMENTARA: buka DevTools > Console untuk lihat respons mentah tiap panggilan.
-  console.log('[DEBUG postJson]', action, '-> status:', res.status, '| raw response:', rawText);
+  if (DEBUG_API) {
+    console.log('[DEBUG postJson]', action, '-> status:', res.status, '| raw response:', rawText);
+  }
 
   let json;
   try {
     json = JSON.parse(rawText);
   } catch (parseErr) {
-    throw new Error('Respons server bukan JSON valid (lihat Console untuk detail mentahnya): ' + rawText.substring(0, 200));
+    throw new Error('Respons server bukan JSON valid: ' + rawText.substring(0, 200));
+  }
+
+  // Sesi invalid/kadaluarsa -- picu handler global (bersihkan cookie +
+  // render ulang halaman login), TAPI tetap lempar error di bawah supaya
+  // halaman fitur yang memanggil ini masih sempat menampilkan pesan
+  // singkat dulu, bukan silent redirect (lihat catatan di main.js).
+  if (json.sessionExpired && onSessionExpired) {
+    onSessionExpired(json.error || 'Sesi Anda berakhir, silakan login ulang.');
   }
   if (json.error) throw new Error(json.error);
   return json.data;
