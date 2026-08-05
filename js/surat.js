@@ -23,43 +23,54 @@ export async function renderSuratPage(sesi) {
 
     if (!isBK) return;
 
+    // Pasang listener dulu (sebelum await apapun) -- kalau ini ditunda
+    // sampai setelah await getJenisSuratAktif, ada risiko user sudah
+    // pindah halaman duluan dan #formSurat sudah tidak ada lagi di DOM,
+    // menyebabkan addEventListener dipanggil ke null.
+    const formEl = document.getElementById('formSurat');
+    if (formEl) {
+        formEl.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const nis = document.getElementById('srNis').value.trim();
+            if (!validateNis(nis)) { showNotification('Format NIS tidak valid.', 'error'); return; }
+            const data = {
+                jenisSurat: document.getElementById('srJenis').value,
+                nis: nis,
+                keperluan: document.getElementById('srKeperluan').value.trim()
+            };
+            showGlobalLoading('Membuat surat...');
+            try {
+                const hasil = await postJson('buatSurat', { data: data });
+                document.getElementById('hasilSurat').innerHTML =
+                    `<p>Surat No. ${escapeHtml(hasil.nomorSurat)} berhasil dibuat. <a href="${escapeHtml(hasil.linkDokumen)}" target="_blank">Buka Dokumen</a></p>`;
+                e.target.reset();
+                muatRiwayat();
+            } catch (err) {
+                showNotification('Gagal membuat surat: ' + err.message, 'error');
+            } finally {
+                hideGlobalLoading();
+            }
+        });
+    }
+
     try {
         const jenisList = await postJson('getJenisSuratAktif', {});
-        document.getElementById('srJenis').innerHTML = jenisList.map(function (j) {
-            return `<option value="${escapeHtml(j.jenisSurat)}">${escapeHtml(j.jenisSurat)}</option>`;
-        }).join('');
+        const selectEl = document.getElementById('srJenis');
+        if (selectEl) {
+            selectEl.innerHTML = jenisList.map(function (j) {
+                return `<option value="${escapeHtml(j.jenisSurat)}">${escapeHtml(j.jenisSurat)}</option>`;
+            }).join('');
+        }
     } catch (err) {
         showNotification('Gagal memuat jenis surat: ' + err.message, 'error');
     }
-
-    document.getElementById('formSurat').addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const nis = document.getElementById('srNis').value.trim();
-        if (!validateNis(nis)) { showNotification('Format NIS tidak valid.', 'error'); return; }
-        const data = {
-            jenisSurat: document.getElementById('srJenis').value,
-            nis: nis,
-            keperluan: document.getElementById('srKeperluan').value.trim()
-        };
-        showGlobalLoading('Membuat surat...');
-        try {
-            const hasil = await postJson('buatSurat', { data: data });
-            document.getElementById('hasilSurat').innerHTML =
-                `<p>Surat No. ${escapeHtml(hasil.nomorSurat)} berhasil dibuat. <a href="${escapeHtml(hasil.linkDokumen)}" target="_blank">Buka Dokumen</a></p>`;
-            e.target.reset();
-            muatRiwayat();
-        } catch (err) {
-            showNotification('Gagal membuat surat: ' + err.message, 'error');
-        } finally {
-            hideGlobalLoading();
-        }
-    });
 
     muatRiwayat();
 }
 
 async function muatRiwayat() {
     const container = document.getElementById('riwayatSurat');
+    if (!container) return; // halaman sudah ditinggalkan sebelum data ini selesai dimuat
     try {
         const list = await postJson('getRiwayatSurat', {});
         if (!list.length) { container.innerHTML = '<p>Belum ada surat dibuat.</p>'; return; }
