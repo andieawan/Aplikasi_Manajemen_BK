@@ -16,7 +16,7 @@ function doPost(e) {
     // Frontend WAJIB mengirim username+token (dibaca dari cookie SSO
     // .smkibupakusari.sch.id oleh JS di sisi client) -- lihat Auth.gs.
     const user = getSessionUser(body.username, body.token);
-    if (!user) return jsonResponse({ error: 'Sesi tidak valid, silakan login ulang.' });
+    if (!user) return jsonResponse({ error: 'Sesi tidak valid, silakan login ulang.', sessionExpired: true });
 
     let result;
     switch (action) {
