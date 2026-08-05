@@ -1,5 +1,7 @@
 import { initModalHandlers, showConfirm } from './modal.js';
 import { getSsoCookie, deleteSsoCookie } from './ssocookie.js';
+import { showNotification } from './utils.js';
+import { setSessionExpiredHandler } from './api.js';
 import { renderLoginPage } from './login.js';
 import { renderPelanggaranPage } from './pelanggaran.js';
 import { renderKasusPage } from './kasus.js';
@@ -24,10 +26,12 @@ let sesiGlobal = null;
 document.addEventListener('DOMContentLoaded', () => {
     initModalHandlers();
 
+    // Temuan audit #1: daftarkan handler sesi kadaluarsa SEKALI di sini
+    // (bukan api.js import main.js langsung -- hindari circular import).
+    setSessionExpiredHandler(tanganiSesiHilang);
+
     sesiGlobal = getSsoCookie();
     if (!sesiGlobal || !sesiGlobal.username || !sesiGlobal.token) {
-        // Bukan cuma alert lagi -- BK sekarang punya login manual sendiri,
-        // tidak wajib lewat go_absen_siswa dulu (lihat login.js).
         renderLoginPage(function (sesiBaru) {
             sesiGlobal = sesiBaru;
             mulaiApp();
@@ -37,6 +41,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mulaiApp();
 });
+
+/**
+ * Dipanggil postJson() (lewat api.js) saat backend menandai sessionExpired.
+ * Halaman fitur yang memanggil postJson() TETAP menampilkan pesan error-nya
+ * sendiri (postJson masih throw setelah ini) -- jadi user lihat pesan dulu,
+ * baru dialihkan ke login setelah jeda singkat, bukan silent redirect.
+ */
+function tanganiSesiHilang(pesan) {
+    showNotification(pesan || 'Sesi Anda berakhir, silakan login ulang.', 'error');
+    deleteSsoCookie();
+    sesiGlobal = null;
+
+    setTimeout(function () {
+        renderLoginPage(function (sesiBaru) {
+            sesiGlobal = sesiBaru;
+            mulaiApp();
+        });
+    }, 1500);
+}
 
 function mulaiApp() {
     renderNav();
