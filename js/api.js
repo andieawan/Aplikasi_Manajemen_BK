@@ -20,7 +20,16 @@ export async function postJson(action, data) {
     headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // hindari CORS preflight ke Apps Script
     body: JSON.stringify(Object.assign({ action, username: sesi.username, token: sesi.token }, data))
   });
-  const json = await res.json();
+  const rawText = await res.text();
+  // DEBUG SEMENTARA: buka DevTools > Console untuk lihat respons mentah tiap panggilan.
+  console.log('[DEBUG postJson]', action, '-> status:', res.status, '| raw response:', rawText);
+
+  let json;
+  try {
+    json = JSON.parse(rawText);
+  } catch (parseErr) {
+    throw new Error('Respons server bukan JSON valid (lihat Console untuk detail mentahnya): ' + rawText.substring(0, 200));
+  }
   if (json.error) throw new Error(json.error);
   return json.data;
 }
