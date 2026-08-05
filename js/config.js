@@ -4,7 +4,7 @@
  * go_absen_siswa/js/config.js supaya cookie SSO yang sama bisa dibaca.
  */
 export const CONFIG = {
-  BACKEND_URL: 'https://script.google.com/macros/s/AKfycbyMGAl2rTMzOEVkosA-QKNrVvo69x3WZPrYgRBRcVF9JL-K1guOv-zJAWnisfCZ1t8n/exec',
+  BACKEND_URL: 'https://script.google.com/macros/s/AKfycbyhWM9ZelaYX3m5m5VBR7wkshH8LikwVpb0yEUcCcqNnVgJi2SC6BIIQzMKrudsj7N5/exec',
 
   APP_NAME: 'Aplikasi Manajemen BK',
 
