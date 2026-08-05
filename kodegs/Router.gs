@@ -3,6 +3,14 @@
  * Pola sama dengan go_absen_siswa: 1 endpoint doPost, routing berdasarkan
  * field 'action' di body JSON, dipanggil dari frontend lewat postJson().
  */
+
+// Naikkan nilai ini SETIAP KALI push kode baru (tanggal + huruf urut cukup).
+// Ditampilkan di footer Dashboard -- cara cepat mengecek apakah Web App yang
+// aktif sekarang sudah menjalankan kode terbaru, tanpa perlu buka DevTools.
+// Kalau versi yang tampil di Dashboard TIDAK berubah setelah Anda push +
+// Deploy > New version, berarti deployment belum benar-benar ter-update.
+const BACKEND_VERSION = '2026-08-05-c';
+
 function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents);
