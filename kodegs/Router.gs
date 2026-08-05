@@ -9,7 +9,23 @@
 // aktif sekarang sudah menjalankan kode terbaru, tanpa perlu buka DevTools.
 // Kalau versi yang tampil di Dashboard TIDAK berubah setelah Anda push +
 // Deploy > New version, berarti deployment belum benar-benar ter-update.
-const BACKEND_VERSION = '2026-08-05-c';
+const BACKEND_VERSION = '2026-08-05-e';
+
+/**
+ * Buka URL Web App ini langsung di tab browser (GET, bukan lewat app) untuk
+ * cek cepat apakah deployment yang aktif sekarang sudah versi terbaru --
+ * tidak perlu login, tidak perlu DevTools. Kalau versi yang muncul BUKAN
+ * BACKEND_VERSION yang terbaru, itu bukti pasti deployment belum di-update.
+ */
+function doGet(e) {
+  return jsonResponse({
+    data: {
+      pesan: 'Router.gs aktif dan bisa diakses.',
+      backendVersion: BACKEND_VERSION,
+      waktuServer: new Date().toString()
+    }
+  });
+}
 
 function doPost(e) {
   try {
@@ -42,9 +58,6 @@ function doPost(e) {
         break;
       case 'getAllPelanggaran':
         result = getAllPelanggaran(user);
-        break;
-      case 'getKategoriAktif':
-        result = getKategoriAktif(user);
         break;
       case 'tambahKasus':
         result = tambahKasus(user, body.data);

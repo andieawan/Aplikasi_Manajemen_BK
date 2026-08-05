@@ -80,10 +80,7 @@ function getOrProvisionPelanggaranSpreadsheetId(tahunAjaran, sudahDikunci) {
     PREFIX_PROP_PELANGGARAN_SS + tahunAjaran,
     'Data BK - Pelanggaran ' + tahunAjaran,
     sudahDikunci,
-    function (ss) {
-      setupSheetPelanggaran(ss);
-      setupSheetConfigKategori(ss);
-    }
+    function (ss) { setupSheetPelanggaran(ss); }
   );
 }
 
@@ -91,20 +88,10 @@ function setupSheetPelanggaran(ss) {
   const sheet = ss.insertSheet(SHEET_PELANGGARAN);
   sheet.appendRow([
     'ID Pelanggaran', 'Timestamp', 'NIS', 'Nama Siswa', 'Kelas',
-    'Tanggal Kejadian', 'Kategori', 'Tingkat', 'Deskripsi', 'Tindak Lanjut',
+    'Tanggal Kejadian', 'Kategori', 'Deskripsi', 'Tindak Lanjut',
     'Status Tindak Lanjut', 'Dilaporkan Oleh', 'Lampiran', 'Status'
   ]);
   sheet.setFrozenRows(1);
-}
-
-function setupSheetConfigKategori(ss) {
-  const sheet = ss.insertSheet(SHEET_CONFIG_KATEGORI);
-  sheet.appendRow(['Nama Kategori', 'Tingkat', 'Aktif']);
-  sheet.setFrozenRows(1);
-  sheet.appendRow(['Terlambat masuk sekolah', 'Ringan', true]);
-  sheet.appendRow(['Tidak mengerjakan tugas', 'Ringan', true]);
-  sheet.appendRow(['Membolos', 'Sedang', true]);
-  sheet.appendRow(['Berkelahi', 'Berat', true]);
 }
 
 // ---- Wrapper khusus fitur Buku Kasus (Tahap 2) ----

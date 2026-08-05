@@ -90,7 +90,6 @@ const DEFAULT_THRESHOLD_ALPA = 3;
 const PREFIX_PROP_PELANGGARAN_SS = 'PELANGGARAN_SS_ID_';
 
 const SHEET_PELANGGARAN = 'Pelanggaran';
-const SHEET_CONFIG_KATEGORI = 'Config Kategori Pelanggaran';
 
 // Properti script untuk provisioning spreadsheet Kasus per tahun ajaran.
 const PREFIX_PROP_KASUS_SS = 'KASUS_SS_ID_';
@@ -176,6 +175,9 @@ const COL_KASUS = {
 };
 
 // Kolom sheet Pelanggaran (0-indexed) — jaga urutan ini konsisten di semua fungsi.
+// KATEGORI hanya boleh berisi salah satu dari 3 nilai tetap: Ringan/Sedang/Berat
+// (bukan lagi nama kategori spesifik seperti "Membolos" + tingkat terpisah).
+const KATEGORI_PELANGGARAN_VALID = ['Ringan', 'Sedang', 'Berat'];
 const COL_PELANGGARAN = {
   ID: 0,
   TIMESTAMP: 1,
@@ -183,12 +185,11 @@ const COL_PELANGGARAN = {
   NAMA: 3,
   KELAS: 4,
   TANGGAL_KEJADIAN: 5,
-  KATEGORI: 6,
-  TINGKAT: 7,
-  DESKRIPSI: 8,
-  TINDAK_LANJUT: 9,
-  STATUS_TINDAK_LANJUT: 10,
-  DILAPORKAN_OLEH: 11,
-  LAMPIRAN: 12,
-  STATUS: 13
+  KATEGORI: 6, // 'Ringan' | 'Sedang' | 'Berat'
+  DESKRIPSI: 7,
+  TINDAK_LANJUT: 8,
+  STATUS_TINDAK_LANJUT: 9,
+  DILAPORKAN_OLEH: 10,
+  LAMPIRAN: 11,
+  STATUS: 12
 };

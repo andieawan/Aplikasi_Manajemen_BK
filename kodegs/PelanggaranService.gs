@@ -2,6 +2,9 @@
  * PelanggaranService.gs
  * Role akses: BK (full) > Wali Kelas (read-only, kelasnya sendiri) >
  * Kepsek (read-only, semua) > selain itu ditolak.
+ * Kategori HANYA 3 nilai tetap: Ringan/Sedang/Berat (lihat
+ * KATEGORI_PELANGGARAN_VALID di Config.gs) -- tidak ada lagi nama
+ * kategori spesifik seperti "Membolos".
  */
 
 /** Tambah catatan pelanggaran baru. Hanya role 'bk'. */
@@ -11,6 +14,9 @@ function tambahPelanggaran(user, data) {
   }
   if (!data.nis || !data.tanggalKejadian || !data.kategori || !data.deskripsi) {
     throw new Error('Data tidak lengkap: nis, tanggalKejadian, kategori, deskripsi wajib diisi.');
+  }
+  if (KATEGORI_PELANGGARAN_VALID.indexOf(data.kategori) === -1) {
+    throw new Error('Kategori tidak valid. Harus salah satu dari: ' + KATEGORI_PELANGGARAN_VALID.join(', '));
   }
 
   const tahunAjaran = getTahunAjaranAktif();
@@ -24,9 +30,6 @@ function tambahPelanggaran(user, data) {
     const siswa = cariSiswaByNis(data.nis);
     if (!siswa) throw new Error('NIS tidak ditemukan di Master Siswa.');
 
-    const kategoriInfo = cariKategoriByNama(ss, data.kategori);
-    if (!kategoriInfo) throw new Error('Kategori pelanggaran tidak ditemukan/tidak aktif: ' + data.kategori);
-
     const id = 'PLG-' + new Date().getTime();
     sheet.appendRow([
       id,
@@ -36,7 +39,6 @@ function tambahPelanggaran(user, data) {
       siswa.kelas,
       data.tanggalKejadian,
       data.kategori,
-      kategoriInfo.tingkat,
       data.deskripsi,
       data.tindakLanjut || '',
       data.tindakLanjut ? 'Selesai' : 'Proses',
@@ -109,34 +111,7 @@ function getAllPelanggaran(user) {
   });
 }
 
-/** Ambil daftar kategori pelanggaran yang aktif (untuk dropdown form). */
-function getKategoriAktif(user) {
-  if (!hasRole(user, ['bk', 'kepsek'])) {
-    throw new Error('Akses ditolak.');
-  }
-  const tahunAjaran = getTahunAjaranAktif();
-  const ssId = getOrProvisionPelanggaranSpreadsheetId(tahunAjaran, false);
-  const ss = SpreadsheetApp.openById(ssId);
-  const sheet = ss.getSheetByName(SHEET_CONFIG_KATEGORI);
-  const data = sheet.getDataRange().getValues();
-  data.shift();
-  return data
-    .filter(function (row) { return row[2] === true; }) // kolom Aktif
-    .map(function (row) { return { nama: row[0], tingkat: row[1] }; });
-}
-
 // ---- Helper internal ----
-
-function cariKategoriByNama(ss, nama) {
-  const sheet = ss.getSheetByName(SHEET_CONFIG_KATEGORI);
-  const data = sheet.getDataRange().getValues();
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === nama && data[i][2] === true) {
-      return { nama: data[i][0], tingkat: data[i][1] };
-    }
-  }
-  return null;
-}
 
 function ambilBarisPelanggaran(filterFn) {
   const tahunAjaran = getTahunAjaranAktif();
@@ -154,8 +129,7 @@ function ambilBarisPelanggaran(filterFn) {
       nama: row[COL_PELANGGARAN.NAMA],
       kelas: row[COL_PELANGGARAN.KELAS],
       tanggalKejadian: row[COL_PELANGGARAN.TANGGAL_KEJADIAN],
-      kategori: row[COL_PELANGGARAN.KATEGORI],
-      tingkat: row[COL_PELANGGARAN.TINGKAT],
+      kategori: row[COL_PELANGGARAN.KATEGORI], // 'Ringan' | 'Sedang' | 'Berat'
       deskripsi: row[COL_PELANGGARAN.DESKRIPSI],
       tindakLanjut: row[COL_PELANGGARAN.TINDAK_LANJUT],
       statusTindakLanjut: row[COL_PELANGGARAN.STATUS_TINDAK_LANJUT],
