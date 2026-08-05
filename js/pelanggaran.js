@@ -2,7 +2,7 @@ import { postJson } from './api.js';
 import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, formatDateIndo, validateNis, punyaAksesBK } from './utils.js';
 import { showConfirm } from './modal.js';
 
-const TINGKAT_BADGE = { Ringan: 'badge-info', Sedang: 'badge-warning', Berat: 'badge-danger' };
+const KATEGORI_BADGE = { Ringan: 'badge-info', Sedang: 'badge-warning', Berat: 'badge-danger' };
 
 export async function renderPelanggaranPage(sesi) {
     const app = document.getElementById('app');
@@ -30,7 +30,12 @@ export async function renderPelanggaranPage(sesi) {
                 </div>
                 <div class="form-group">
                     <label>Kategori</label>
-                    <select id="inputKategori" required><option value="">Memuat kategori...</option></select>
+                    <select id="inputKategori" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="Ringan">Ringan</option>
+                        <option value="Sedang">Sedang</option>
+                        <option value="Berat">Berat</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Deskripsi / Kronologi</label>
@@ -52,23 +57,8 @@ export async function renderPelanggaranPage(sesi) {
 
     if (isBK) {
         setupFormTambah();
-        muatKategori();
     }
     muatDaftar(isBK || isKepsek, kelasWali);
-}
-
-async function muatKategori() {
-    const select = document.getElementById('inputKategori');
-    try {
-        const kategoriList = await postJson('getKategoriAktif', {});
-        select.innerHTML = '<option value="">-- Pilih Kategori --</option>' +
-            kategoriList.map(function (k) {
-                return `<option value="${escapeHtml(k.nama)}">${escapeHtml(k.nama)} (${escapeHtml(k.tingkat)})</option>`;
-            }).join('');
-    } catch (err) {
-        select.innerHTML = '<option value="">Gagal memuat kategori</option>';
-        showNotification('Gagal memuat kategori: ' + err.message, 'error');
-    }
 }
 
 function setupFormTambah() {
@@ -146,7 +136,7 @@ async function muatDaftar(lihatSemua, kelasWali) {
 }
 
 function renderBarisPelanggaran(p, bisaUpdate) {
-    const badgeClass = TINGKAT_BADGE[p.tingkat] || 'badge-secondary';
+    const badgeClass = KATEGORI_BADGE[p.kategori] || 'badge-secondary';
     return `
         <tr>
             <td>${formatDateIndo(p.tanggalKejadian)}</td>
