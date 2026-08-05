@@ -1,5 +1,6 @@
 import { postJson } from './api.js';
-import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, formatDateIndo, validateNis, punyaAksesBK } from './utils.js';
+import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, formatDateIndo, punyaAksesBK } from './utils.js';
+import { renderSiswaPickerHTML, setupSiswaPicker, getNisTerpilih } from './siswaPicker.js';
 
 export async function renderPrestasiPage(sesi) {
     const app = document.getElementById('app');
@@ -14,7 +15,7 @@ export async function renderPrestasiPage(sesi) {
         <section class="card">
             <h2>Tambah Prestasi</h2>
             <form id="formPrestasi">
-                <div class="form-group"><label>NIS Siswa</label><input type="text" id="prNis" required></div>
+                ${renderSiswaPickerHTML('pr', 'Kelas', 'Nama Siswa')}
                 <div class="form-group"><label>Tanggal</label><input type="date" id="prTanggal" required></div>
                 <div class="form-group"><label>Jenis</label>
                     <select id="prJenis"><option>Akademik</option><option>Non-Akademik</option></select>
@@ -37,10 +38,13 @@ export async function renderPrestasiPage(sesi) {
     `;
 
     if (isBK || isWali) {
+        // BK bebas pilih kelas manapun; Wali Kelas (non-BK) dikunci ke kelasnya sendiri.
+        setupSiswaPicker('pr', isBK ? null : kelasWali);
+
         document.getElementById('formPrestasi').addEventListener('submit', async function (e) {
             e.preventDefault();
-            const nis = document.getElementById('prNis').value.trim();
-            if (!validateNis(nis)) { showNotification('Format NIS tidak valid.', 'error'); return; }
+            const nis = getNisTerpilih('pr');
+            if (!nis) { showNotification('Pilih kelas dan nama siswa.', 'error'); return; }
             const data = {
                 nis: nis,
                 tanggal: document.getElementById('prTanggal').value,

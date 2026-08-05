@@ -1,6 +1,7 @@
 import { postJson } from './api.js';
-import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, formatDateIndo, validateNis, punyaAksesBK } from './utils.js';
+import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, formatDateIndo, punyaAksesBK } from './utils.js';
 import { showConfirm } from './modal.js';
+import { renderSiswaPickerHTML, setupSiswaPicker, getNisTerpilih } from './siswaPicker.js';
 
 export async function renderKasusPage(sesi) {
     const app = document.getElementById('app');
@@ -18,10 +19,7 @@ export async function renderKasusPage(sesi) {
         <section class="card">
             <h2>Tambah Kasus</h2>
             <form id="formTambahKasus">
-                <div class="form-group">
-                    <label>NIS Siswa</label>
-                    <input type="text" id="kasusNis" required placeholder="Masukkan NIS">
-                </div>
+                ${renderSiswaPickerHTML('kss', 'Kelas', 'Nama Siswa')}
                 <div class="form-group">
                     <label>Tanggal Mulai</label>
                     <input type="date" id="kasusTanggal" required>
@@ -55,7 +53,7 @@ export async function renderKasusPage(sesi) {
         </section>
     `;
 
-    if (isBK) setupFormTambahKasus();
+    if (isBK) { setupFormTambahKasus(); setupSiswaPicker('kss', null); }
     muatDaftarKasus(isBK, isBK || isKepsek, kelasWali);
 }
 
@@ -63,9 +61,9 @@ function setupFormTambahKasus() {
     const form = document.getElementById('formTambahKasus');
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
-        const nis = document.getElementById('kasusNis').value.trim();
-        if (!validateNis(nis)) {
-            showNotification('Format NIS tidak valid.', 'error');
+        const nis = getNisTerpilih('kss');
+        if (!nis) {
+            showNotification('Pilih kelas dan nama siswa.', 'error');
             return;
         }
         const data = {

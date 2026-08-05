@@ -1,5 +1,6 @@
 import { postJson } from './api.js';
-import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, validateNis, punyaAksesBK } from './utils.js';
+import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, punyaAksesBK } from './utils.js';
+import { renderSiswaPickerHTML, setupSiswaPicker, getNisTerpilih } from './siswaPicker.js';
 
 export async function renderSuratPage(sesi) {
     const app = document.getElementById('app');
@@ -12,7 +13,7 @@ export async function renderSuratPage(sesi) {
             <h2>Buat Surat</h2>
             <form id="formSurat">
                 <div class="form-group"><label>Jenis Surat</label><select id="srJenis"><option value="">Memuat...</option></select></div>
-                <div class="form-group"><label>NIS Siswa</label><input type="text" id="srNis" required></div>
+                ${renderSiswaPickerHTML('sr', 'Kelas', 'Nama Siswa')}
                 <div class="form-group"><label>Keperluan</label><input type="text" id="srKeperluan"></div>
                 <button type="submit" class="btn-primary">Generate Surat</button>
             </form>
@@ -23,6 +24,8 @@ export async function renderSuratPage(sesi) {
 
     if (!isBK) return;
 
+    setupSiswaPicker('sr', null);
+
     // Pasang listener dulu (sebelum await apapun) -- kalau ini ditunda
     // sampai setelah await getJenisSuratAktif, ada risiko user sudah
     // pindah halaman duluan dan #formSurat sudah tidak ada lagi di DOM,
@@ -31,8 +34,8 @@ export async function renderSuratPage(sesi) {
     if (formEl) {
         formEl.addEventListener('submit', async function (e) {
             e.preventDefault();
-            const nis = document.getElementById('srNis').value.trim();
-            if (!validateNis(nis)) { showNotification('Format NIS tidak valid.', 'error'); return; }
+            const nis = getNisTerpilih('sr');
+            if (!nis) { showNotification('Pilih kelas dan nama siswa.', 'error'); return; }
             const data = {
                 jenisSurat: document.getElementById('srJenis').value,
                 nis: nis,

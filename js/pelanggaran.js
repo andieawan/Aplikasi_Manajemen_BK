@@ -1,6 +1,7 @@
 import { postJson } from './api.js';
-import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, formatDateIndo, validateNis, punyaAksesBK } from './utils.js';
+import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, formatDateIndo, punyaAksesBK } from './utils.js';
 import { showConfirm } from './modal.js';
+import { renderSiswaPickerHTML, setupSiswaPicker, getNisTerpilih } from './siswaPicker.js';
 
 const KATEGORI_BADGE = { Ringan: 'badge-info', Sedang: 'badge-warning', Berat: 'badge-danger' };
 
@@ -20,10 +21,7 @@ export async function renderPelanggaranPage(sesi) {
         <section class="card" id="formTambahSection">
             <h2>Tambah Pelanggaran</h2>
             <form id="formTambahPelanggaran">
-                <div class="form-group">
-                    <label>NIS Siswa</label>
-                    <input type="text" id="inputNis" required placeholder="Masukkan NIS">
-                </div>
+                ${renderSiswaPickerHTML('plg', 'Kelas', 'Nama Siswa')}
                 <div class="form-group">
                     <label>Tanggal Kejadian</label>
                     <input type="date" id="inputTanggal" required>
@@ -57,6 +55,7 @@ export async function renderPelanggaranPage(sesi) {
 
     if (isBK) {
         setupFormTambah();
+        setupSiswaPicker('plg', null);
     }
     muatDaftar(isBK || isKepsek, kelasWali);
 }
@@ -65,9 +64,9 @@ function setupFormTambah() {
     const form = document.getElementById('formTambahPelanggaran');
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
-        const nis = document.getElementById('inputNis').value.trim();
-        if (!validateNis(nis)) {
-            showNotification('Format NIS tidak valid.', 'error');
+        const nis = getNisTerpilih('plg');
+        if (!nis) {
+            showNotification('Pilih kelas dan nama siswa.', 'error');
             return;
         }
         const data = {

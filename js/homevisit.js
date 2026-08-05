@@ -1,5 +1,6 @@
 import { postJson } from './api.js';
-import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, formatDateIndo, validateNis, punyaAksesBK } from './utils.js';
+import { showGlobalLoading, hideGlobalLoading, showNotification, escapeHtml, formatDateIndo, punyaAksesBK } from './utils.js';
+import { renderSiswaPickerHTML, setupSiswaPicker, getNisTerpilih } from './siswaPicker.js';
 
 export async function renderHomeVisitPage(sesi) {
     const app = document.getElementById('app');
@@ -13,7 +14,7 @@ export async function renderHomeVisitPage(sesi) {
         <section class="card">
             <h2>Catat Home Visit</h2>
             <form id="formHomeVisit">
-                <div class="form-group"><label>NIS Siswa</label><input type="text" id="hvNis" required></div>
+                ${renderSiswaPickerHTML('hv', 'Kelas', 'Nama Siswa')}
                 <div class="form-group"><label>Tanggal Kunjungan</label><input type="date" id="hvTanggal" required></div>
                 <div class="form-group"><label>Tujuan</label><input type="text" id="hvTujuan" required></div>
                 <div class="form-group"><label>Hasil Kunjungan</label><textarea id="hvHasil" rows="3"></textarea></div>
@@ -27,10 +28,12 @@ export async function renderHomeVisitPage(sesi) {
     `;
 
     if (isBK) {
+        setupSiswaPicker('hv', null);
+
         document.getElementById('formHomeVisit').addEventListener('submit', async function (e) {
             e.preventDefault();
-            const nis = document.getElementById('hvNis').value.trim();
-            if (!validateNis(nis)) { showNotification('Format NIS tidak valid.', 'error'); return; }
+            const nis = getNisTerpilih('hv');
+            if (!nis) { showNotification('Pilih kelas dan nama siswa.', 'error'); return; }
             const data = {
                 nis: nis,
                 tanggalKunjungan: document.getElementById('hvTanggal').value,
