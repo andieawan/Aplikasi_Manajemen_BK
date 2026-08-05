@@ -30,6 +30,7 @@ export async function renderDashboardPage(sesi) {
                 </ul>
             </section>
             <p><em>Data siswa perlu perhatian (keterlambatan/alpa) belum tampil di sini -- lihat menu Pelanggaran per kelas, fitur ini menunggu action getAbsenUntukBK selesai dibuat di go_absen_siswa.</em></p>
+            <p style="font-size:0.75rem;color:var(--gray-400);">Versi backend aktif: ${escapeHtml(d.backendVersion || '(tidak diketahui)')}</p>
         `;
     } catch (err) {
         document.getElementById('dashboardContainer').innerHTML = '<p class="text-danger">Gagal memuat: ' + escapeHtml(err.message) + '</p>';
