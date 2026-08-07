@@ -119,8 +119,10 @@ const COL_SURAT = {
   KEPERLUAN: 7,
   FIELD_TAMBAHAN_JSON: 8,
   DIBUAT_OLEH: 9,
-  LINK_DOKUMEN: 10,
-  STATUS: 11
+  LINK_DOKUMEN: 10,       // dokumen surat hasil generate dari template
+  LINK_BERKAS_SCAN: 11,   // scan surat yang SUDAH ditandatangani (upload manual BK)
+  STATUS_PENANGANAN: 12,  // 'Proses' | 'Selesai' -- apakah kasus di balik surat ini sudah ditangani
+  STATUS: 13              // 'Aktif' | 'Diarsipkan' (soft delete, beda dari status penanganan di atas)
 };
 
 // Folder Drive tempat dokumen surat hasil generate disimpan (auto-create,
