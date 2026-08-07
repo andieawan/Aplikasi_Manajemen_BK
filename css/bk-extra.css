@@ -136,3 +136,109 @@
 .text-danger {
   color: var(--danger-color);
 }
+
+/* =========================================================
+   RESPONSIF MOBILE
+   Mengikuti breakpoint 640px yang sudah dipakai konsisten di seluruh
+   CSS go_absen_siswa (lihat .container, .grid--*, dst di layout.css/
+   app-ui.css) -- disamakan supaya tidak ada breakpoint ganda yang beda
+   sendiri.
+   ========================================================= */
+
+/* ---- Nav utama: scroll horizontal di layar sempit, bukan wrap yang
+   bikin menu berantakan/logout kepencet ke bawah tak terduga. ---- */
+@media (max-width: 640px) {
+  .main-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: var(--spacing-2) var(--spacing-3);
+  }
+
+  .nav-link {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* Tombol Logout tetap dorong ke kanan lewat margin-left:auto (sudah
+     diatur inline di main.js), tapi kasih jarak kiri minimal supaya
+     tidak nempel ke menu terakhir saat semua menu ditampilkan penuh
+     (jarang kepakai kalau overflow aktif, tapi aman untuk layar 640-768px). */
+  #btnLogout {
+    margin-left: var(--spacing-4) !important;
+  }
+}
+
+/* ---- Card lebih rapat di layar sempit -- padding spacing-6 bawaan
+   (24px) kebesaran untuk layar HP, buang ruang berharga. ---- */
+@media (max-width: 640px) {
+  .card {
+    padding: var(--spacing-4);
+  }
+
+  .page-header h1 {
+    font-size: var(--font-size-xl);
+  }
+}
+
+/* ---- Tombol form selebar penuh di HP -- target sentuh lebih besar,
+   pola umum form mobile (dibanding tombol kecil menempel kiri). ---- */
+@media (max-width: 640px) {
+  .card form > .btn-primary,
+  .card form button[type="submit"] {
+    width: 100%;
+  }
+}
+
+/* ---- Tabel data jadi kartu vertikal di layar sempit -- pola sama
+   persis dengan #studentsTable/#waliStudentsTable di go_absen_siswa
+   (app-ui.css), tapi dibuat GENERIK lewat atribut data-label di tiap
+   <td> (bukan nth-child per tabel) karena .tabel-data dipakai di 6
+   halaman berbeda dengan jumlah & urutan kolom yang beda-beda --
+   nth-child per tabel akan terlalu rapuh untuk dijaga konsisten.
+   WAJIB: tiap <td> yang dirender lewat JS harus punya data-label
+   sesuai nama kolomnya (lihat com escapeHtml(...) di *.js). */
+@media (max-width: 640px) {
+  .tabel-data thead {
+    display: none;
+  }
+
+  .tabel-data,
+  .tabel-data tbody,
+  .tabel-data tr,
+  .tabel-data td {
+    display: block;
+    width: 100%;
+  }
+
+  .tabel-data tr {
+    margin-bottom: var(--spacing-3);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-3);
+  }
+
+  .tabel-data td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    padding: var(--spacing-1) 0;
+    border-bottom: none;
+    text-align: right;
+  }
+
+  .tabel-data td::before {
+    content: attr(data-label);
+    font-weight: var(--font-weight-semibold);
+    color: var(--gray-500);
+    flex-shrink: 0;
+    text-align: left;
+  }
+
+  /* Kolom tanpa data-label (mis. sel berisi tombol aksi) -- rata kanan
+     penuh tanpa label kosong yang ganjil. */
+  .tabel-data td:not([data-label]) {
+    justify-content: flex-end;
+  }
+}
