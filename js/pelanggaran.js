@@ -138,13 +138,13 @@ function renderBarisPelanggaran(p, bisaUpdate) {
     const badgeClass = KATEGORI_BADGE[p.kategori] || 'badge-secondary';
     return `
         <tr>
-            <td>${formatDateIndo(p.tanggalKejadian)}</td>
-            <td>${escapeHtml(p.nama)}</td>
-            <td>${escapeHtml(p.kelas)}</td>
-            <td><span class="badge ${badgeClass}">${escapeHtml(p.kategori)}</span></td>
-            <td>${escapeHtml(p.deskripsi)}</td>
-            <td>${escapeHtml(p.tindakLanjut || '-')}</td>
-            <td>${escapeHtml(p.statusTindakLanjut)}</td>
+            <td data-label="Tanggal">${formatDateIndo(p.tanggalKejadian)}</td>
+            <td data-label="Nama">${escapeHtml(p.nama)}</td>
+            <td data-label="Kelas">${escapeHtml(p.kelas)}</td>
+            <td data-label="Kategori"><span class="badge ${badgeClass}">${escapeHtml(p.kategori)}</span></td>
+            <td data-label="Deskripsi">${escapeHtml(p.deskripsi)}</td>
+            <td data-label="Tindak Lanjut">${escapeHtml(p.tindakLanjut || '-')}</td>
+            <td data-label="Status">${escapeHtml(p.statusTindakLanjut)}</td>
             ${bisaUpdate ? `<td><button class="btn-secondary btn-sm" data-update-id="${escapeHtml(p.id)}">Update</button></td>` : ''}
         </tr>
     `;
