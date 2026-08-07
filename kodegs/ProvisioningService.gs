@@ -173,7 +173,8 @@ function setupSheetDataSurat(ss) {
   const sheet = ss.insertSheet(SHEET_DATA_SURAT);
   sheet.appendRow([
     'ID', 'Timestamp', 'Jenis Surat', 'Nomor Surat', 'NIS', 'Nama Siswa', 'Kelas',
-    'Keperluan', 'Field Tambahan (JSON)', 'Dibuat Oleh', 'Link Dokumen', 'Status'
+    'Keperluan', 'Field Tambahan (JSON)', 'Dibuat Oleh', 'Link Dokumen', 'Link Berkas Scan',
+    'Status Penanganan', 'Status'
   ]);
   sheet.setFrozenRows(1);
 }
