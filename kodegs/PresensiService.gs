@@ -66,3 +66,42 @@ function getSiswaPerluPerhatian(user, kelas) {
     return s.jumlahAlpa >= threshold;
   });
 }
+
+/**
+ * Simpan absensi manual 1 kelas untuk 1 tanggal, lewat UrlFetchApp ke
+ * go_absen_siswa (action 'simpanAbsenUntukBK' -- lihat catatan kontrak
+ * di go_absen_siswa_repo/BKIntegrasi.gs). Data masuk ke sistem absensi
+ * go_absen_siswa langsung (bukan disimpan terpisah di BK), supaya tetap
+ * 1 sumber kebenaran. Hanya BK.
+ *
+ * dataKehadiran: [{ nis, status }], status salah satu dari 'H'/'I'/'S'/'A'.
+ */
+function simpanAbsenManualBK(user, kelas, tanggal, dataKehadiran) {
+  if (!hasRole(user, ['bk'])) throw new Error('Akses ditolak: hanya BK yang bisa input absensi manual.');
+  if (!kelas || !tanggal || !Array.isArray(dataKehadiran) || !dataKehadiran.length) {
+    throw new Error('Data tidak lengkap: kelas, tanggal, dataKehadiran wajib diisi.');
+  }
+
+  const urlGoAbsenSiswa = getBackendUrlGoAbsenSiswa();
+  if (!urlGoAbsenSiswa) {
+    throw new Error('BACKEND_URL_GO_ABSEN_SISWA belum diisi (jalankan setupConfigBK()).');
+  }
+
+  const res = UrlFetchApp.fetch(urlGoAbsenSiswa, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify({
+      action: 'simpanAbsenUntukBK',
+      username: user.username,
+      token: user._tokenAsli,
+      kelas: kelas,
+      tanggal: tanggal,
+      dataKehadiran: dataKehadiran
+    }),
+    muteHttpExceptions: true
+  });
+
+  const json = JSON.parse(res.getContentText());
+  if (!json.success) throw new Error('go_absen_siswa: ' + (json.message || 'Gagal menyimpan absensi.'));
+  return { ok: true };
+}
