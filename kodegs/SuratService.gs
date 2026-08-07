@@ -82,12 +82,85 @@ function buatSurat(user, data) {
     sheet.appendRow([
       id, new Date(), data.jenisSurat, nomorSurat, siswa.nis, siswa.nama, siswa.kelas,
       data.keperluan || '', JSON.stringify(data.fieldTambahan || {}), user.username,
-      salinan.getUrl(), 'Aktif'
+      salinan.getUrl(), '', 'Proses', 'Aktif'
     ]);
     return { id: id, nomorSurat: nomorSurat, linkDokumen: salinan.getUrl() };
   } finally {
     lock.releaseLock();
   }
+}
+
+/** Ubah status penanganan (Proses/Selesai) 1 surat. Hanya BK. */
+function updateStatusPenangananSurat(user, idSurat, statusBaru) {
+  if (!hasRole(user, ['bk'])) throw new Error('Akses ditolak: hanya BK yang bisa mengubah status penanganan.');
+  if (['Proses', 'Selesai'].indexOf(statusBaru) === -1) {
+    throw new Error('Status tidak valid. Harus "Proses" atau "Selesai".');
+  }
+
+  const tahunAjaran = getTahunAjaranAktif();
+  const ssId = getOrProvisionSuratSpreadsheetId(tahunAjaran, false);
+  const ss = SpreadsheetApp.openById(ssId);
+  const sheet = ss.getSheetByName(SHEET_DATA_SURAT);
+  const rows = sheet.getDataRange().getValues();
+  let rowIndex = -1;
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][COL_SURAT.ID] === idSurat) { rowIndex = i + 1; break; }
+  }
+  if (rowIndex === -1) throw new Error('Data surat tidak ditemukan.');
+
+  sheet.getRange(rowIndex, COL_SURAT.STATUS_PENANGANAN + 1).setValue(statusBaru);
+  return { ok: true };
+}
+
+function getOrCreateFolderBerkasTtd() {
+  const props = PropertiesService.getScriptProperties();
+  const key = 'FOLDER_BERKAS_TTD_SURAT_ID';
+  const existingId = props.getProperty(key);
+  if (existingId) {
+    try { return DriveApp.getFolderById(existingId); } catch (e) { /* dibuat ulang di bawah */ }
+  }
+  const folder = getOrCreateFolderSurat().createFolder('Berkas Tanda Tangan (Scan)');
+  props.setProperty(key, folder.getId());
+  return folder;
+}
+
+/**
+ * Upload scan surat yang SUDAH dicetak, ditandatangani, lalu di-scan --
+ * jadi backup digital, ditautkan ke record surat aslinya. Hanya BK.
+ *
+ * fileBase64: konten file dalam base64 (TANPA prefix "data:...;base64,"
+ * -- itu harus sudah dipotong di sisi frontend sebelum dikirim).
+ */
+function uploadBerkasSurat(user, idSurat, fileBase64, namaFile, mimeType) {
+  if (!hasRole(user, ['bk'])) throw new Error('Akses ditolak: hanya BK yang bisa upload berkas.');
+  if (!idSurat || !fileBase64 || !namaFile) {
+    throw new Error('Data tidak lengkap: idSurat, fileBase64, namaFile wajib diisi.');
+  }
+
+  const tahunAjaran = getTahunAjaranAktif();
+  const ssId = getOrProvisionSuratSpreadsheetId(tahunAjaran, false);
+  const ss = SpreadsheetApp.openById(ssId);
+  const sheet = ss.getSheetByName(SHEET_DATA_SURAT);
+  const rows = sheet.getDataRange().getValues();
+  let rowIndex = -1;
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][COL_SURAT.ID] === idSurat) { rowIndex = i + 1; break; }
+  }
+  if (rowIndex === -1) throw new Error('Data surat tidak ditemukan.');
+
+  let bytes;
+  try {
+    bytes = Utilities.base64Decode(fileBase64);
+  } catch (e) {
+    throw new Error('File tidak valid (gagal decode base64).');
+  }
+
+  const blob = Utilities.newBlob(bytes, mimeType || 'application/octet-stream', namaFile);
+  const folder = getOrCreateFolderBerkasTtd();
+  const file = folder.createFile(blob);
+
+  sheet.getRange(rowIndex, COL_SURAT.LINK_BERKAS_SCAN + 1).setValue(file.getUrl());
+  return { ok: true, linkBerkasScan: file.getUrl() };
 }
 
 function ambilNomorSuratBerikutnya(ss, tahunAjaran) {
@@ -119,7 +192,9 @@ function getRiwayatSurat(user, nis) {
         kelas: row[COL_SURAT.KELAS],
         keperluan: row[COL_SURAT.KEPERLUAN],
         dibuatOleh: row[COL_SURAT.DIBUAT_OLEH],
-        linkDokumen: row[COL_SURAT.LINK_DOKUMEN]
+        linkDokumen: row[COL_SURAT.LINK_DOKUMEN],
+        linkBerkasScan: row[COL_SURAT.LINK_BERKAS_SCAN] || '',
+        statusPenanganan: row[COL_SURAT.STATUS_PENANGANAN] || 'Proses'
       };
     });
 }
