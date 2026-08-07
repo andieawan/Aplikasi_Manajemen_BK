@@ -69,7 +69,7 @@ async function muatSiswaPerluPerhatian(kelas) {
             <table class="tabel-data">
                 <thead><tr><th>Nama</th><th>Alpa</th><th>Izin</th><th>Sakit</th><th>Hadir</th></tr></thead>
                 <tbody>${list.map(function (s) {
-                    return `<tr><td>${escapeHtml(s.nama)}</td><td>${s.jumlahAlpa}</td><td>${s.jumlahIzin}</td><td>${s.jumlahSakit}</td><td>${s.jumlahHadir}</td></tr>`;
+                    return `<tr><td data-label="Nama">${escapeHtml(s.nama)}</td><td data-label="Alpa">${s.jumlahAlpa}</td><td data-label="Izin">${s.jumlahIzin}</td><td data-label="Sakit">${s.jumlahSakit}</td><td data-label="Hadir">${s.jumlahHadir}</td></tr>`;
                 }).join('')}</tbody>
             </table>`;
     } catch (err) {
