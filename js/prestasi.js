@@ -79,8 +79,8 @@ async function muatDaftarPrestasi(lihatSemua, kelasWali) {
             <table class="tabel-data">
                 <thead><tr><th>Tanggal</th><th>Nama</th><th>Kelas</th><th>Jenis</th><th>Tingkat</th><th>Kegiatan</th><th>Capaian</th></tr></thead>
                 <tbody>${list.map(function (p) {
-                    return `<tr><td>${formatDateIndo(p.tanggal)}</td><td>${escapeHtml(p.nama)}</td><td>${escapeHtml(p.kelas)}</td>
-                        <td>${escapeHtml(p.jenis)}</td><td>${escapeHtml(p.tingkat)}</td><td>${escapeHtml(p.namaKegiatan)}</td><td>${escapeHtml(p.capaian)}</td></tr>`;
+                    return `<tr><td data-label="Tanggal">${formatDateIndo(p.tanggal)}</td><td data-label="Nama">${escapeHtml(p.nama)}</td><td data-label="Kelas">${escapeHtml(p.kelas)}</td>
+                        <td data-label="Jenis">${escapeHtml(p.jenis)}</td><td data-label="Tingkat">${escapeHtml(p.tingkat)}</td><td data-label="Kegiatan">${escapeHtml(p.namaKegiatan)}</td><td data-label="Capaian">${escapeHtml(p.capaian)}</td></tr>`;
                 }).join('')}</tbody>
             </table>`;
     } catch (err) {
