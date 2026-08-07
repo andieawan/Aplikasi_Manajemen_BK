@@ -138,12 +138,12 @@ function renderBarisKasus(k, isBK) {
     const ringkasan = k.ringkasan !== undefined ? escapeHtml(k.ringkasan) : '<em>Ada kasus aktif, detail dijaga kerahasiaannya oleh BK</em>';
     return `
         <tr>
-            <td>${escapeHtml(k.nama)}</td>
-            <td>${escapeHtml(k.kelas)}</td>
-            <td>${kategori}</td>
-            <td>${ringkasan}</td>
-            <td>${escapeHtml(k.statusKasus)}</td>
-            <td><span class="badge ${k.tingkatKerahasiaan === 'Sangat Rahasia' ? 'badge-danger' : 'badge-secondary'}">${escapeHtml(k.tingkatKerahasiaan)}</span></td>
+            <td data-label="Nama">${escapeHtml(k.nama)}</td>
+            <td data-label="Kelas">${escapeHtml(k.kelas)}</td>
+            <td data-label="Kategori">${kategori}</td>
+            <td data-label="Ringkasan">${ringkasan}</td>
+            <td data-label="Status">${escapeHtml(k.statusKasus)}</td>
+            <td data-label="Kerahasiaan"><span class="badge ${k.tingkatKerahasiaan === 'Sangat Rahasia' ? 'badge-danger' : 'badge-secondary'}">${escapeHtml(k.tingkatKerahasiaan)}</span></td>
             ${isBK ? `<td><button class="btn-secondary btn-sm" data-update-id="${escapeHtml(k.id)}">Update</button></td>` : ''}
         </tr>
     `;
