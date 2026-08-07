@@ -9,7 +9,7 @@
 // aktif sekarang sudah menjalankan kode terbaru, tanpa perlu buka DevTools.
 // Kalau versi yang tampil di Dashboard TIDAK berubah setelah Anda push +
 // Deploy > New version, berarti deployment belum benar-benar ter-update.
-const BACKEND_VERSION = '2026-08-05-e';
+const BACKEND_VERSION = '2026-08-05-i';
 
 /**
  * Buka URL Web App ini langsung di tab browser (GET, bukan lewat app) untuk
@@ -47,6 +47,12 @@ function doPost(e) {
       case 'tambahPelanggaran':
         result = tambahPelanggaran(user, body.data);
         break;
+      case 'getDaftarKelas':
+        result = getDaftarKelas();
+        break;
+      case 'getSiswaAktifKelas':
+        result = getSiswaAktifKelas(body.kelas);
+        break;
       case 'updateStatusTindakLanjut':
         result = updateStatusTindakLanjut(user, body.idPelanggaran, body.tindakLanjut, body.status);
         break;
@@ -76,6 +82,9 @@ function doPost(e) {
         break;
       case 'getSiswaPerluPerhatian':
         result = getSiswaPerluPerhatian(user, body.kelas);
+        break;
+      case 'simpanAbsenManualBK':
+        result = simpanAbsenManualBK(user, body.kelas, body.tanggal, body.dataKehadiran);
         break;
       case 'setThresholdAlpa':
         result = setThresholdAlpa(user, body.threshold);
@@ -115,6 +124,12 @@ function doPost(e) {
         break;
       case 'buatSurat':
         result = buatSurat(user, body.data);
+        break;
+      case 'uploadBerkasSurat':
+        result = uploadBerkasSurat(user, body.idSurat, body.fileBase64, body.namaFile, body.mimeType);
+        break;
+      case 'updateStatusPenangananSurat':
+        result = updateStatusPenangananSurat(user, body.idSurat, body.status);
         break;
       case 'getRiwayatSurat':
         result = getRiwayatSurat(user, body.nis);
