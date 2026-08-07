@@ -66,8 +66,8 @@ async function muatDaftarHomeVisit(lihatSemua, kelasWali) {
             <table class="tabel-data">
                 <thead><tr><th>Tanggal</th><th>Nama</th><th>Kelas</th><th>Tujuan</th><th>Hasil</th><th>Tindak Lanjut</th></tr></thead>
                 <tbody>${list.map(function (h) {
-                    return `<tr><td>${formatDateIndo(h.tanggalKunjungan)}</td><td>${escapeHtml(h.nama)}</td><td>${escapeHtml(h.kelas)}</td>
-                        <td>${escapeHtml(h.tujuan)}</td><td>${escapeHtml(h.hasilKunjungan || '-')}</td><td>${escapeHtml(h.tindakLanjut || '-')}</td></tr>`;
+                    return `<tr><td data-label="Tanggal">${formatDateIndo(h.tanggalKunjungan)}</td><td data-label="Nama">${escapeHtml(h.nama)}</td><td data-label="Kelas">${escapeHtml(h.kelas)}</td>
+                        <td data-label="Tujuan">${escapeHtml(h.tujuan)}</td><td data-label="Hasil">${escapeHtml(h.hasilKunjungan || '-')}</td><td data-label="Tindak Lanjut">${escapeHtml(h.tindakLanjut || '-')}</td></tr>`;
                 }).join('')}</tbody>
             </table>`;
     } catch (err) {
