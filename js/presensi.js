@@ -106,21 +106,28 @@ async function muatFormAbsenManual(kelas) {
         const daftarSiswa = await postJson('getSiswaAktifKelas', { kelas: kelas });
         if (!daftarSiswa.length) { container.innerHTML = '<p>Tidak ada siswa aktif di kelas ini.</p>'; return; }
 
+        const STATUS_LABEL = { H: 'Hadir', I: 'Izin', S: 'Sakit', A: 'Alpa' };
+
         container.innerHTML = `
             <table class="tabel-data">
                 <thead><tr><th>Nama</th><th>Status</th></tr></thead>
-                <tbody>
+                <tbody id="tbodyAbsenManual">
                     ${daftarSiswa.map(function (s) {
+                        const nis = escapeHtml(s.nis);
+                        const groupName = 'absen-status-' + nis;
+                        const tombolStatus = ['H', 'I', 'S', 'A'].map(function (kode) {
+                            const id = groupName + '-' + kode;
+                            return `
+                                <input type="radio" class="status-toggle-input" name="${groupName}" id="${id}" value="${kode}" ${kode === 'H' ? 'checked' : ''}>
+                                <label for="${id}" class="status-toggle status-toggle--${kode}" title="${STATUS_LABEL[kode]}">${kode}</label>`;
+                        }).join('');
                         return `
                             <tr>
                                 <td data-label="Nama">${escapeHtml(s.nama)}</td>
                                 <td data-label="Status">
-                                    <select data-nis-absen="${escapeHtml(s.nis)}">
-                                        <option value="H" selected>Hadir</option>
-                                        <option value="I">Izin</option>
-                                        <option value="S">Sakit</option>
-                                        <option value="A">Alpa</option>
-                                    </select>
+                                    <div class="status-toggle-group" data-nis="${nis}">
+                                        ${tombolStatus}
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -142,8 +149,10 @@ async function simpanAbsenManual(kelas) {
     const tanggal = document.getElementById('absenTanggal').value;
     if (!tanggal) { showNotification('Pilih tanggal dulu.', 'error'); return; }
 
-    const dataKehadiran = Array.from(document.querySelectorAll('[data-nis-absen]')).map(function (sel) {
-        return { nis: sel.dataset.nisAbsen, status: sel.value };
+    const groups = document.querySelectorAll('#tbodyAbsenManual .status-toggle-group');
+    const dataKehadiran = Array.from(groups).map(function (group) {
+        const checked = group.querySelector('input[type="radio"]:checked');
+        return { nis: group.dataset.nis, status: checked ? checked.value : 'H' };
     });
     if (!dataKehadiran.length) { showNotification('Tidak ada data siswa untuk disimpan.', 'error'); return; }
 
